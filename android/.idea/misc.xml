@@ -3,6 +3,12 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/AndroidApps/LichessScheduler/android/app/src/main/res/drawable/ic_chevron_down.xml" value="0.1945" />
+        <entry key="..\:/AndroidApps/LichessScheduler/android/app/src/main/res/layout/activity_edit.xml" value="0.20416666666666666" />
+        <entry key="..\:/AndroidApps/LichessScheduler/android/app/src/main/res/layout/activity_main.xml" value="0.20416666666666666" />
+        <entry key="..\:/AndroidApps/LichessScheduler/android/app/src/main/res/layout/activity_schedule.xml" value="0.20416666666666666" />
+        <entry key="..\:/AndroidApps/LichessScheduler/android/app/src/main/res/layout/activity_settings.xml" value="0.33" />
+        <entry key="..\:/AndroidApps/LichessScheduler/android/app/src/main/res/layout/tnr_item.xml" value="0.33" />
         <entry key="..\:/AndroidApps/LichessScheduler/app/src/main/res/drawable/ic_add.xml" value="0.21614583333333334" />
         <entry key="..\:/AndroidApps/LichessScheduler/app/src/main/res/drawable/ic_add_colored.xml" value="0.21614583333333334" />
         <entry key="..\:/AndroidApps/LichessScheduler/app/src/main/res/drawable/ic_add_white.xml" value="0.21614583333333334" />
