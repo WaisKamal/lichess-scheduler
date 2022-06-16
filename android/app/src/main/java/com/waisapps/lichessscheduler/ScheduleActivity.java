@@ -40,11 +40,6 @@ public class ScheduleActivity extends AppCompatActivity {
         }
     }
 
-    // Intent constants (Team is included for ease of access when fetching teams in EditActivity)
-    private static final String FROM_ACTIVITY = "com.waisapps.lichessscheduler.fromActiviy";
-    private static final String ID = "com.waisapps.lichessscheduler.id";
-    private static final String TEAM = "com.waisapps.lichessscheduler.team";
-
     // The current token
     String token;
 
@@ -87,7 +82,7 @@ public class ScheduleActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(ScheduleActivity.this, EditActivity.class);
-                intent.putExtra(FROM_ACTIVITY, "ScheduleActivity");
+                intent.putExtra(IntentConstants.FROM_ACTIVITY, "ScheduleActivity");
                 startActivityForResult(intent, 1);
             }
         });

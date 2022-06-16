@@ -51,11 +51,6 @@ public class EditActivity extends AppCompatActivity implements MenuItem.OnMenuIt
 
     private static final int PERMISSION_REQUEST_CODE = 5;
 
-    // Intent constants
-    private static final String FROM_ACTIVITY = "com.waisapps.lichessscheduler.fromActiviy";
-    private static final String ID = "com.waisapps.lichessscheduler.id";
-    private static final String TEAM = "com.waisapps.lichessscheduler.team";
-
     // Current access token and username
     String token;
     String username;
@@ -309,8 +304,8 @@ public class EditActivity extends AppCompatActivity implements MenuItem.OnMenuIt
 
         // Check whether this activity was called by ScheduleActivity
         Intent intent = getIntent();
-        if (intent.hasExtra(ID)) {
-            currentTnrId = intent.getStringExtra(ID);
+        if (intent.hasExtra(IntentConstants.ID)) {
+            currentTnrId = intent.getStringExtra(IntentConstants.ID);
             getSupportActionBar().setTitle("Edit Tournament");
 
             // Read the tournament from file as a JSON object
@@ -500,7 +495,6 @@ public class EditActivity extends AppCompatActivity implements MenuItem.OnMenuIt
         }
         return false;
     }
-
 
     @Override
     public boolean onSupportNavigateUp() {
@@ -714,7 +708,7 @@ public class EditActivity extends AppCompatActivity implements MenuItem.OnMenuIt
             btnSave.setEnabled(true);
 
             // Go to ScheduleActivity and kill this activity
-            if (getIntent().hasExtra(ID) || getIntent().hasExtra(FROM_ACTIVITY)) {
+            if (getIntent().hasExtra(IntentConstants.ID) || getIntent().hasExtra(IntentConstants.FROM_ACTIVITY)) {
                 setResult(1);
                 finish();
             } else {
@@ -782,8 +776,8 @@ public class EditActivity extends AppCompatActivity implements MenuItem.OnMenuIt
                                 R.layout.support_simple_spinner_dropdown_item, teamNames);
                         tnrTeams.setAdapter(adapter);
                         Intent intent = getIntent();
-                        if (intent.hasExtra(TEAM)) {
-                            String intentTeam = intent.getStringExtra(TEAM);
+                        if (intent.hasExtra(IntentConstants.TEAM)) {
+                            String intentTeam = intent.getStringExtra(IntentConstants.TEAM);
                             for (int j = 0; j < teamIds.size(); j++) {
                                 if (teamIds.get(j).equals(intentTeam)) {
                                     tnrTeams.setSelection(j);
