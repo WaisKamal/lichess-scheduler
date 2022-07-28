@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="primaryColor">#FF5722</color>
+    <color name="backgroundColor">#333</color>
+    <color name="objectBackgroundColor">#555</color>
+    <color name="textColor">#FFF</color>
+    <color name="textColorLight">#999</color>
+    <color name="spinnerBackground">#555</color>
+    <color name="iconColorDark">#FFF</color>
+</resources>

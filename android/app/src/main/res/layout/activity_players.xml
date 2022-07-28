@@ -39,6 +39,7 @@
         android:layout_marginBottom="20dp"
         android:clickable="true"
         android:src="@drawable/ic_player_add"
+        app:backgroundTint="@color/primaryColor"
         app:borderWidth="0dp" />
 
     <androidx.cardview.widget.CardView

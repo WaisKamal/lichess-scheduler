@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/backgroundColor"
     tools:context=".MainActivity">
 
     <TextView
@@ -90,6 +91,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
+        app:cardBackgroundColor="@color/objectBackgroundColor"
         app:cardCornerRadius="5dp"
         app:cardElevation="20dp"
         app:layout_constraintEnd_toEndOf="parent"
@@ -136,6 +138,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
+        app:cardBackgroundColor="@color/objectBackgroundColor"
         app:cardCornerRadius="5dp"
         app:cardElevation="20dp"
         app:layout_constraintEnd_toEndOf="@+id/cardView10"
@@ -184,6 +187,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
+        app:cardBackgroundColor="@color/objectBackgroundColor"
         app:cardCornerRadius="5dp"
         app:cardElevation="20dp"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -232,6 +236,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
+        app:cardBackgroundColor="@color/objectBackgroundColor"
         app:cardCornerRadius="5dp"
         app:cardElevation="20dp"
         app:layout_constraintEnd_toEndOf="@+id/cardView8"
@@ -279,6 +284,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="CleopatraXM"
+        android:textColor="@color/textColorLight"
         android:textSize="18sp"
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="@+id/button"
