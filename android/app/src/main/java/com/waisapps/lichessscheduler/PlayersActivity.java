@@ -48,6 +48,9 @@ public class PlayersActivity extends AppCompatActivity implements View.OnClickLi
     // The list of players
     ArrayList<PlayerItem> players;
 
+    // The field validator
+    private TournamentFieldValidator validator;
+
     // Current token
     String token;
 
@@ -65,6 +68,9 @@ public class PlayersActivity extends AppCompatActivity implements View.OnClickLi
         labelNoItem = findViewById(R.id.labelNoItem);
         parent = findViewById(R.id.container);
         btnAdd = findViewById(R.id.btnAdd);
+
+        // Initialize field validator
+        validator = new TournamentFieldValidator(this);
 
         // Initialize recycler view
         plrContainer = findViewById(R.id.tnrContainer);
@@ -105,28 +111,7 @@ public class PlayersActivity extends AppCompatActivity implements View.OnClickLi
 
     public ArrayList<PlayerItem> getPlayers() throws IOException, JSONException {
         ArrayList<PlayerItem> players = new ArrayList<>();
-        File dataDir = new File(getFilesDir(), "data");
-        if (!dataDir.exists()) {
-            dataDir.mkdir();
-        }
-        File tokenDir = new File(dataDir, token);
-        if (!tokenDir.exists()) {
-            tokenDir.mkdir();
-        }
-        File plrFile = new File(tokenDir, "players");
-        if (!plrFile.exists()) {
-            plrFile.createNewFile();
-            FileWriter plrFileWriter = new FileWriter(plrFile);
-            plrFileWriter.write("[]");
-            plrFileWriter.flush();
-            plrFileWriter.close();
-        }
-
-        FileInputStream fis = new FileInputStream(plrFile);
-        byte[] data = new byte[(int) plrFile.length()];
-        fis.read(data);
-        fis.close();
-        String plrFileText = new String(data, StandardCharsets.UTF_8);
+        String plrFileText = PlayerFileManager.getPlayers(getFilesDir(), token);
         JSONArray plrArray = new JSONArray(plrFileText);
         for (int i = 0; i < plrArray.length(); i++) {
             players.add(new PlayerItem(plrArray.getJSONObject(i)));
@@ -222,11 +207,7 @@ public class PlayersActivity extends AppCompatActivity implements View.OnClickLi
             playersJSONArray.put(player);
         }
         try {
-            File plrFile = new File(getFilesDir() + "/data/" + token + "/players");
-            FileOutputStream plrFileStraem = new FileOutputStream(plrFile);
-            byte[] dataToWrite = playersJSONArray.toString().getBytes(StandardCharsets.UTF_8);
-            plrFileStraem.write(dataToWrite);
-            plrFileStraem.close();
+            PlayerFileManager.writePlayersToFile(getFilesDir(), token, playersJSONArray.toString());
             Toast.makeText(this, "Successfully saved", Toast.LENGTH_SHORT).show();
         } catch (Exception e) {
             Snackbar.make(parent, "Could not save", Snackbar.LENGTH_INDEFINITE)
@@ -243,25 +224,6 @@ public class PlayersActivity extends AppCompatActivity implements View.OnClickLi
                     .setActionTextColor(0xFFE64A19)
                     .show();
         }
-    }
-
-    public boolean validateUsername(String username) {
-        if (!username.trim().toLowerCase().matches("[a-z0-9][a-z0-9_-]{0,28}[a-z0-9]")) {
-            Toast.makeText(this, "Invalid username", Toast.LENGTH_SHORT).show();
-            return false;
-        }
-        return true;
-    }
-
-    public boolean validateName(String name) {
-        if (name.replaceAll("\\s", "").length() < 2) {
-            Toast.makeText(this, "Name cannot be empty", Toast.LENGTH_SHORT).show();
-            return false;
-        } else if (name.length() < 2) {
-            Toast.makeText(this, "Name too short", Toast.LENGTH_SHORT).show();
-            return false;
-        }
-        return true;
     }
 
     @Override
@@ -291,8 +253,8 @@ public class PlayersActivity extends AppCompatActivity implements View.OnClickLi
         name = name.trim();
 
         // Validation checks
-        if (!validateUsername(id)) return;
-        if (!validateName(name)) return;
+        if (!validator.validateUsername(id)) return;
+        if (!validator.validateName(name)) return;
 
         // Check if player id already exists
         for (int i = 0; i < players.size(); i++) {

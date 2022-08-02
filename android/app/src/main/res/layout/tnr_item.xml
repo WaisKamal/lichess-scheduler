@@ -149,12 +149,12 @@
             android:id="@+id/overlay"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:background="#C0FFFFFF"
+            android:background="@color/overlayColorLight"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            tools:visibility="gone" />
+            tools:visibility="visible" />
 
         <Switch
             android:id="@+id/schedulingSwitch"
@@ -346,6 +346,7 @@
                 android:layout_marginTop="16dp"
                 android:layout_marginBottom="20dp"
                 android:text="Retry"
+                android:textColor="#FFF"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="@+id/imageView3"
                 app:layout_constraintTop_toBottomOf="@+id/textView44" />
@@ -357,6 +358,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="8dp"
                 android:text="Remove"
+                android:textColor="@color/textColorColored"
                 app:layout_constraintStart_toEndOf="@+id/btnRetry"
                 app:layout_constraintTop_toTopOf="@+id/btnRetry" />
         </androidx.constraintlayout.widget.ConstraintLayout>

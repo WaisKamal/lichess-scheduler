@@ -89,7 +89,6 @@ public class ScheduleActivity extends AppCompatActivity {
 
         try {
             tournaments = getTournaments();
-            // Collections.sort(tournaments, new TournamentStartTimeComparator());
             tnrAdapter = new TournamentAdapter(tournaments, this, token, queue);
             tnrAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
                 @Override
@@ -131,8 +130,6 @@ public class ScheduleActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
     }
 
-
-
     @Override
     public boolean onSupportNavigateUp() {
         onBackPressed();
@@ -141,33 +138,17 @@ public class ScheduleActivity extends AppCompatActivity {
 
     public ArrayList<TournamentItem> getTournaments() throws IOException, JSONException {
         ArrayList<TournamentItem> tournaments = new ArrayList<>();
-        File dataDir = new File(getFilesDir(), "data");
-        if (!dataDir.exists()) {
-            dataDir.mkdir();
-        }
-        File tokenDir = new File(dataDir, token);
-        if (!tokenDir.exists()) {
-            tokenDir.mkdir();
-        }
-        File tnrDir = new File(tokenDir, "tournaments");
-        if (!tnrDir.exists()) {
-            tnrDir.mkdir();
-        }
-        File[] tnrFiles = tnrDir.listFiles();
+        File[] tnrFiles = TournamentFileManager.getTournamentsByToken(getFilesDir(), token);
         if (tnrFiles != null) {
             for (File file : tnrFiles) {
-                FileInputStream fis = new FileInputStream(file);
-                byte[] data = new byte[(int) file.length()];
-                fis.read(data);
-                fis.close();
-                String fileText = new String(data, StandardCharsets.UTF_8);
+                String fileText = TournamentFileManager.getTournamentJSON(getFilesDir(), token, file.getName());
                 tournaments.add(new TournamentItem(new JSONObject(fileText)));
             }
+            // Sort tournaments by start time
             Collections.sort(tournaments, new TournamentStartTimeComparator());
         } else {
             labelNoItem.setVisibility(View.VISIBLE);
         }
-
         return tournaments;
     }
 }

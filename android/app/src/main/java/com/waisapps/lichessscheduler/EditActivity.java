@@ -1,7 +1,6 @@
 package com.waisapps.lichessscheduler;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
@@ -14,7 +13,6 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ProgressBar;
-import android.widget.RadioGroup;
 import android.widget.SeekBar;
 import android.widget.Spinner;
 import android.widget.Switch;
@@ -23,7 +21,6 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
-import androidx.constraintlayout.widget.ConstraintLayout;
 
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -36,12 +33,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -63,6 +55,12 @@ public class EditActivity extends AppCompatActivity implements MenuItem.OnMenuIt
 
     // Request queue
     RequestQueue requestQueue;
+
+    // Field values
+    private TournamentFieldValues fieldValues;
+
+    // Field validator
+    private TournamentFieldValidator validator;
 
     // Menu buttons
     private MenuItem menuPlayers;
@@ -111,6 +109,12 @@ public class EditActivity extends AppCompatActivity implements MenuItem.OnMenuIt
         // Initialize request queue
         requestQueue = Volley.newRequestQueue(this);
 
+        // Initialize field values registry
+        fieldValues = new TournamentFieldValues(this);
+
+        // Initialize field validator
+        validator = new TournamentFieldValidator(this);
+
         // Initialize current token and username
         token = getSharedPreferences("com.waisapps.lichessscheduler.userinfo", MODE_PRIVATE).getString("token", "");
         username = getSharedPreferences("com.waisapps.lichessscheduler.userinfo", MODE_PRIVATE).getString("username", "");
@@ -118,54 +122,9 @@ public class EditActivity extends AppCompatActivity implements MenuItem.OnMenuIt
         // Initialize frame layout
         frameLayout = findViewById(R.id.frameLayout);
 
-        // Initialize labels
-        tnrInitialTimeText = findViewById(R.id.tnrInitialTimeText);
-        tnrIncrementText = findViewById(R.id.tnrIncrementText);
-        tnrRoundsText = findViewById(R.id.tnrRoundsText);
-        tnrBreaksText = findViewById(R.id.tnrBreaksText);
-        tnrDurationText = findViewById(R.id.tnrDurationText);
-        tnrTeamsText = findViewById(R.id.tnrTeamsText);
-        tnrTeamBattleTeamsText = findViewById(R.id.tnrTeamBattleTeamsText);
-        tnrLeadersText = findViewById(R.id.tnrLeadersText);
-        tnrMinRatingText = findViewById(R.id.tnrMinRatingText);
-        tnrMaxRatingText = findViewById(R.id.tnrMaxRatingText);
-        tnrRatedGamesText = findViewById(R.id.tnrRatedGamesText);
-        tnrChatAccessText = findViewById(R.id.tnrChatAccessText);
-        tnrForbiddenPairingsText = findViewById(R.id.tnrForbiddenPairingsText);
-
-        // Initialize fields
-        tnrName = findViewById(R.id.tnrName);
-        tnrDisplayName = findViewById(R.id.tnrDisplayName);
-        tnrType = findViewById(R.id.tnrType);
-        tnrVariant = findViewById(R.id.tnrVariant);
-        tnrRated = findViewById(R.id.tnrRated);
-        tnrInitialTime = findViewById(R.id.tnrInitialTime);
-        tnrIncrement = findViewById(R.id.tnrIncrement);
-        tnrRounds = findViewById(R.id.tnrRounds);
-        tnrBreaks = findViewById(R.id.tnrBreaks);
-        tnrDuration = findViewById(R.id.tnrDuration);
-        tnrStartPos = findViewById(R.id.tnrStartPos);
-        tnrDescr = findViewById(R.id.tnrDescr);
-        tnrTeams = findViewById(R.id.tnrTeams);
-        tnrPassword = findViewById(R.id.tnrPassword);
-        tnrTeamBattleTeams = findViewById(R.id.tnrTeamBattleTeams);
-        tnrLeaders = findViewById(R.id.tnrLeaders);
-        tnrMinRating = findViewById(R.id.tnrMinRating);
-        tnrMaxRating = findViewById(R.id.tnrMaxRating);
-        tnrRatedGames = findViewById(R.id.tnrRatedGames);
-        tnrBerserk = findViewById(R.id.tnrBerserk);
-        tnrStreaks = findViewById(R.id.tnrStreaks);
-        tnrChatroom = findViewById(R.id.tnrChatroom);
-        tnrChatAccess = findViewById(R.id.tnrChatAccess);
-        // Set default position for tnrChatAccess
-        tnrChatAccess.setSelection(2);
-        tnrForbiddenPairings = findViewById(R.id.tnrForbiddenPairings);
-        tnrStartTimeHrs = findViewById(R.id.tnrStartTimeHrs);
-        tnrStartTimeMins = findViewById(R.id.tnrStartTimeMins);
-
-        btnSave = findViewById(R.id.btnSave);
-        loader = findViewById(R.id.saveLoader);
-        startLoader = findViewById(R.id.loader);
+        // Initialize fields and labels
+        initializeFields();
+        initializeLabels();
 
         // Initialize checkboxes array
         for (int i = 0; i < 7; i++) {
@@ -212,78 +171,14 @@ public class EditActivity extends AppCompatActivity implements MenuItem.OnMenuIt
         populateTeamsSpinner();
 
         // Set seekbar listeners
-        tnrInitialTime.setOnSeekBarChangeListener(this);
-        tnrIncrement.setOnSeekBarChangeListener(this);
-        tnrRounds.setOnSeekBarChangeListener(this);
-        tnrBreaks.setOnSeekBarChangeListener(this);
-        tnrDuration.setOnSeekBarChangeListener(this);
-        tnrLeaders.setOnSeekBarChangeListener(this);
-        tnrMinRating.setOnSeekBarChangeListener(this);
-        tnrMaxRating.setOnSeekBarChangeListener(this);
-        tnrRatedGames.setOnSeekBarChangeListener(this);
+        assignSeekBarListeners(this, tnrInitialTime, tnrIncrement, tnrRounds, tnrBreaks,
+                tnrDuration, tnrLeaders, tnrMinRating, tnrMaxRating, tnrRatedGames);
 
         tnrType.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @SuppressLint("SetTextI18n")
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                if (position == 0) {
-                    tnrRoundsText.setVisibility(View.GONE);
-                    tnrRounds.setVisibility(View.GONE);
-                    tnrBreaksText.setVisibility(View.GONE);
-                    tnrBreaks.setVisibility(View.GONE);
-                    tnrDurationText.setVisibility(View.VISIBLE);
-                    tnrDuration.setVisibility(View.VISIBLE);
-                    tnrTeamsText.setText("Only members of team");
-                    tnrTeamBattleTeamsText.setVisibility(View.GONE);
-                    tnrTeamBattleTeams.setVisibility(View.GONE);
-                    tnrLeadersText.setVisibility(View.GONE);
-                    tnrLeaders.setVisibility(View.GONE);
-                    tnrBerserk.setVisibility(View.VISIBLE);
-                    tnrStreaks.setVisibility(View.VISIBLE);
-                    tnrChatroom.setVisibility(View.VISIBLE);
-                    tnrChatAccessText.setVisibility(View.GONE);
-                    tnrChatAccess.setVisibility(View.GONE);
-                    tnrForbiddenPairingsText.setVisibility(View.GONE);
-                    tnrForbiddenPairings.setVisibility(View.GONE);
-                } else if (position == 1) {
-                    tnrRoundsText.setVisibility(View.VISIBLE);
-                    tnrRounds.setVisibility(View.VISIBLE);
-                    tnrBreaksText.setVisibility(View.VISIBLE);
-                    tnrBreaks.setVisibility(View.VISIBLE);
-                    tnrDurationText.setVisibility(View.GONE);
-                    tnrDuration.setVisibility(View.GONE);
-                    tnrTeamsText.setText("Only members of team");
-                    tnrTeamBattleTeamsText.setVisibility(View.GONE);
-                    tnrTeamBattleTeams.setVisibility(View.GONE);
-                    tnrLeadersText.setVisibility(View.GONE);
-                    tnrLeaders.setVisibility(View.GONE);
-                    tnrBerserk.setVisibility(View.GONE);
-                    tnrStreaks.setVisibility(View.GONE);
-                    tnrChatroom.setVisibility(View.GONE);
-                    tnrChatAccessText.setVisibility(View.VISIBLE);
-                    tnrChatAccess.setVisibility(View.VISIBLE);
-                    tnrForbiddenPairingsText.setVisibility(View.VISIBLE);
-                    tnrForbiddenPairings.setVisibility(View.VISIBLE);
-                } else if (position == 2) {
-                    tnrRoundsText.setVisibility(View.GONE);
-                    tnrRounds.setVisibility(View.GONE);
-                    tnrBreaksText.setVisibility(View.GONE);
-                    tnrBreaks.setVisibility(View.GONE);
-                    tnrDurationText.setVisibility(View.VISIBLE);
-                    tnrDuration.setVisibility(View.VISIBLE);
-                    tnrTeamsText.setText("Team battle by team");
-                    tnrTeamBattleTeamsText.setVisibility(View.VISIBLE);
-                    tnrTeamBattleTeams.setVisibility(View.VISIBLE);
-                    tnrLeadersText.setVisibility(View.VISIBLE);
-                    tnrLeaders.setVisibility(View.VISIBLE);
-                    tnrBerserk.setVisibility(View.VISIBLE);
-                    tnrStreaks.setVisibility(View.VISIBLE);
-                    tnrChatroom.setVisibility(View.VISIBLE);
-                    tnrChatAccessText.setVisibility(View.GONE);
-                    tnrChatAccess.setVisibility(View.GONE);
-                    tnrForbiddenPairingsText.setVisibility(View.GONE);
-                    tnrForbiddenPairings.setVisibility(View.GONE);
-                }
+                toggleFieldsBasedOnTournamentType(position);
             }
 
             @Override
@@ -309,15 +204,8 @@ public class EditActivity extends AppCompatActivity implements MenuItem.OnMenuIt
             getSupportActionBar().setTitle("Edit Tournament");
 
             // Read the tournament from file as a JSON object
-            File tnrFile = new File(getFilesDir() + "/data/" + token + "/tournaments/"
-                    + currentTnrId);
             try {
-                FileInputStream fis = new FileInputStream(tnrFile);
-                byte[] data = new byte[(int) tnrFile.length()];
-                fis.read(data);
-                fis.close();
-                String tnrFileText = new String(data, StandardCharsets.UTF_8);
-
+                String tnrFileText = TournamentFileManager.getTournamentJSON(getFilesDir(), token, currentTnrId);
                 // The current tournament data
                 JSONObject tnrData = new JSONObject(tnrFileText);
 
@@ -605,10 +493,10 @@ public class EditActivity extends AppCompatActivity implements MenuItem.OnMenuIt
 
         // Add rating/games restrictions if not set to default
         if (tnrMinRating.getProgress() > 0) {
-            tnr.put("minRating", getMinRatingValue(tnrMinRating.getProgress()));
+            tnr.put("minRating", fieldValues.getMinRatingValue(tnrMinRating.getProgress()));
         }
         if (tnrMaxRating.getProgress() > 0) {
-            tnr.put("maxRating", getMaxRatingValue(tnrMaxRating.getProgress()));
+            tnr.put("maxRating", fieldValues.getMaxRatingValue(tnrMaxRating.getProgress()));
         }
         if (tnrRatedGames.getProgress() > 0) {
             tnr.put("ratedGames", tnrRatedGamesValues[tnrRatedGames.getProgress()]);
@@ -662,21 +550,21 @@ public class EditActivity extends AppCompatActivity implements MenuItem.OnMenuIt
         tnr.put("status", tnrStatus);
 
         // Validation checks
-        if (!validateName(tnrName.getText().toString())) return;
-        if (!validateDisplayName(tnrDisplayName.getText().toString())) return;
-        if (!validateInitialTime(tnrInitialTime.getProgress(), tnrIncrement.getProgress())) return;
-        if (tnrType.getSelectedItemPosition() == 0 && !validateDuration(tnrInitialTime.getProgress(), tnrDuration.getProgress()))
+        if (!validator.validateTournamentName(tnrName.getText().toString())) return;
+        if (!validator.validateDisplayName(tnrDisplayName.getText().toString())) return;
+        if (!validator.validateInitialTime(tnrInitialTime.getProgress(), tnrIncrement.getProgress())) return;
+        if (tnrType.getSelectedItemPosition() == 0 && !validator.validateDuration(tnrInitialTime.getProgress(), tnrDuration.getProgress()))
             return;
-        if (!validateFEN(tnrVariantValues[tnrVariant.getSelectedItemPosition()], tnrStartPos.getText().toString())) return;
-        if (!validateTeam(tnrType.getSelectedItemPosition(), tnrTeams.getSelectedItemPosition()))
+        if (!validator.validateFEN(tnrVariantValues[tnrVariant.getSelectedItemPosition()], tnrStartPos.getText().toString())) return;
+        if (!validator.validateTeam(tnrType.getSelectedItemPosition(), tnrTeams.getSelectedItemPosition()))
             return;
-        if (tnrType.getSelectedItemPosition() == 2 && !validateTeamBattleTeams(tnrTeamBattleTeams.getText().toString()))
+        if (tnrType.getSelectedItemPosition() == 2 && !validator.validateTeamBattleTeams(tnrTeamBattleTeams.getText().toString()))
             return;
-        if (!validateMinAndMaxRatings(tnrMinRating.getProgress(), tnrMaxRating.getProgress()))
+        if (!validator.validateMinAndMaxRatings(tnrMinRating.getProgress(), tnrMaxRating.getProgress()))
             return;
-        if (tnrType.getSelectedItemPosition() == 1 && !validateForbiddenPairings(tnrForbiddenPairings.getText().toString()))
+        if (tnrType.getSelectedItemPosition() == 1 && !validator.validateForbiddenPairings(tnrForbiddenPairings.getText().toString()))
             return;
-        if (!validateScheduleOn(checkBoxes)) return; // To be looked at
+        if (!validator.validateScheduleOn(checkBoxes)) return; // To be looked at
 
         // Show the loader
         loader.setVisibility(View.VISIBLE);
@@ -685,22 +573,7 @@ public class EditActivity extends AppCompatActivity implements MenuItem.OnMenuIt
         // Save the tournament to file
         String tnrFileName = tnr.getString("id");
         try {
-            File dataDir = new File(getFilesDir(), "data");
-            if (!dataDir.exists()) {
-                dataDir.mkdir();
-            }
-            File tokenDir = new File(dataDir, token);
-            if (!tokenDir.exists()) {
-                tokenDir.mkdir();
-            }
-            File tnrDir = new File(tokenDir, "tournaments");
-            if (!tnrDir.exists()) {
-                tnrDir.mkdir();
-            }
-            File tnrFile = new File(tnrDir, tnrFileName);
-            FileOutputStream tnrFileStream = new FileOutputStream(tnrFile);
-            tnrFileStream.write(tnr.toString().getBytes(StandardCharsets.UTF_8));
-            tnrFileStream.close();
+            TournamentFileManager.writeTournamentToFile(getFilesDir(), token, tnrFileName, tnr.toString());
             Toast.makeText(this, "Successfully saved", Toast.LENGTH_SHORT).show();
 
             // Hide the loader
@@ -818,123 +691,6 @@ public class EditActivity extends AppCompatActivity implements MenuItem.OnMenuIt
         return result.toString();
     }
 
-    public boolean validateName(String name) {
-        if (name.length() < 2 || name.length() > 30) {
-            Toast.makeText(this, "Tournament name must be between 2 and 30 characters long", Toast.LENGTH_SHORT).show();
-            return false;
-        }
-        if (!name.matches("(\\w|\\s|-|,|\\(|\\)|<\\d>){2,30}") || name.toLowerCase().contains("lichess")) {
-            Toast.makeText(this, "Invalid tournament name", Toast.LENGTH_SHORT).show();
-            return false;
-        }
-        return true;
-    }
-
-    public boolean validateDisplayName(String displayName) {
-        if (displayName.length() < 2 || displayName.length() > 30) {
-            Toast.makeText(this, "Display name must be between 2 and 30 characters long", Toast.LENGTH_SHORT).show();
-            return false;
-        }
-        if (!displayName.matches("(\\w|\\s|-|,|\\(|\\)){2,30}") || displayName.toLowerCase().contains("lichess")) {
-            Toast.makeText(this, "Invalid tournament name", Toast.LENGTH_SHORT).show();
-            return false;
-        }
-        return true;
-    }
-
-    public boolean validateInitialTime(int initialTimeIndex, int incrementIndex) {
-        if (initialTimeIndex == 0 && incrementIndex == 0) {
-            Toast.makeText(this, "Initial time cannot be 0", Toast.LENGTH_SHORT).show();
-            return false;
-        }
-        return true;
-    }
-
-    public boolean validateForbiddenPairings(String forbiddenPairings) {
-        if (forbiddenPairings.trim().isEmpty()) return true;
-        String[] lines = forbiddenPairings.split("(\\n|\\r\\n)+");
-        // Allow no more than 1000 forbidden pairings
-        if (lines.length > 1000) {
-            Toast.makeText(this, "Maximum number of forbidden pairings is 1000", Toast.LENGTH_SHORT).show();
-            return false;
-        }
-        for (String line : lines) {
-            String[] usernamePair = line.trim().split(" +");
-            // Only accept exactly two usernames per line
-            if (usernamePair.length != 2) {
-                Toast.makeText(this, "Invalid forbidden pairings format", Toast.LENGTH_SHORT).show();
-                return false;
-            }
-            for (String username : usernamePair) {
-                // Accept valid usernames only
-                if (!username.trim().toLowerCase().matches("[a-z0-9][a-z0-9_-]{0,28}[a-z0-9]")) {
-                    Toast.makeText(this, "Invalid usernames in forbidden pairings", Toast.LENGTH_SHORT).show();
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
-
-    public boolean validateDuration(int initialTime, int duration) {
-        // Check if duration meets minimum duration
-        if (tnrDurationValues[duration] < tnrInitialTimeValues[initialTime] / 12) {
-            Toast.makeText(this, "You must increase tournament duration", Toast.LENGTH_SHORT).show();
-            return false;
-        } else if (
-                (initialTime == 1 && duration > 11) || (initialTime == 2 && duration > 15) ||
-                        (initialTime == 3 && duration > 17) || (initialTime == 4 && duration > 19) ||
-                        (initialTime == 5 && duration > 22) || (initialTime == 6 && duration > 24)) {
-            Toast.makeText(this, "You must decrease tournament duration", Toast.LENGTH_SHORT).show();
-            return false;
-        }
-        return true;
-    }
-
-    public boolean validateFEN(String variant, String fen) {
-        if (fen.isEmpty()) return true;
-        if (!variant.equals("standard") && !variant.equals("chess960")) return false;
-        String pieces = "kqrbnpKQRBNP";
-        String nums = "12345678";
-        int rows = 1;
-        int squaresInCurrentRow = 0;
-        for (int i = 0; i < fen.length(); i++) {
-            if (pieces.indexOf(fen.charAt(i)) > -1) {
-                squaresInCurrentRow++;
-            } else if (nums.indexOf(fen.charAt(i)) > -1) {
-                squaresInCurrentRow += Integer.parseInt(String.valueOf(fen.charAt(i)));
-            } else if (squaresInCurrentRow == 8 && fen.charAt(i) == '/') {
-                rows++;
-                squaresInCurrentRow = 0;
-            } else {
-                Toast.makeText(this, "Invalid FEN", Toast.LENGTH_SHORT).show();
-                return false;
-            }
-            if (squaresInCurrentRow > 8 || rows > 8) {
-                Toast.makeText(this, "Invalid FEN", Toast.LENGTH_SHORT).show();
-                return false;
-            }
-        }
-        return rows == 8 && squaresInCurrentRow == 8;
-    }
-
-    public boolean validateTeam(int type, int team) {
-        if (type == 1 && team == 0) {
-            Toast.makeText(this, "You must select a team", Toast.LENGTH_SHORT).show();
-            return false;
-        }
-        return true;
-    }
-
-    // Pending
-    public boolean validateScheduleOn(CheckBox[] days) {
-        for (CheckBox day : days) {
-            if (day.isChecked()) return true;
-        }
-        Toast.makeText(this, "You must select at least one day", Toast.LENGTH_SHORT).show();
-        return false;
-    }
-
     // Get minimum rating text/value
     public String getMinRatingText(int progress) {
         if (progress == 0) {
@@ -942,9 +698,6 @@ public class EditActivity extends AppCompatActivity implements MenuItem.OnMenuIt
         } else {
             return String.valueOf(progress * 100 + 900);
         }
-    }
-    public int getMinRatingValue(int progress) {
-        return progress * 100 + 900;
     }
 
     // Get maximum rating text/value
@@ -955,39 +708,122 @@ public class EditActivity extends AppCompatActivity implements MenuItem.OnMenuIt
             return String.valueOf(progress * 100 + 700);
         }
     }
-    public int getMaxRatingValue(int progress) {
-        return progress * 100 + 700;
+
+    private void assignSeekBarListeners(SeekBar.OnSeekBarChangeListener listener, SeekBar... seekBars) {
+        for (SeekBar seekBar : seekBars) {
+            seekBar.setOnSeekBarChangeListener(listener);
+        }
     }
 
-    public boolean validateMinAndMaxRatings(int minProgress, int maxProgress) {
-        if (minProgress == 0 && maxProgress == 0) {
-            return true;
-        }
-        if (getMinRatingValue(minProgress) >= getMaxRatingValue(maxProgress)) {
-            Toast.makeText(this, "Minimum rating should be less than maximum rating", Toast.LENGTH_SHORT).show();
-            return false;
-        }
-        return true;
+    private void initializeLabels() {
+        tnrInitialTimeText = findViewById(R.id.tnrInitialTimeText);
+        tnrIncrementText = findViewById(R.id.tnrIncrementText);
+        tnrRoundsText = findViewById(R.id.tnrRoundsText);
+        tnrBreaksText = findViewById(R.id.tnrBreaksText);
+        tnrDurationText = findViewById(R.id.tnrDurationText);
+        tnrTeamsText = findViewById(R.id.tnrTeamsText);
+        tnrTeamBattleTeamsText = findViewById(R.id.tnrTeamBattleTeamsText);
+        tnrLeadersText = findViewById(R.id.tnrLeadersText);
+        tnrMinRatingText = findViewById(R.id.tnrMinRatingText);
+        tnrMaxRatingText = findViewById(R.id.tnrMaxRatingText);
+        tnrRatedGamesText = findViewById(R.id.tnrRatedGamesText);
+        tnrChatAccessText = findViewById(R.id.tnrChatAccessText);
+        tnrForbiddenPairingsText = findViewById(R.id.tnrForbiddenPairingsText);
     }
 
-    public boolean validateTeamBattleTeams(String teams) {
-        String[] teamsArr = teams.trim().split(",");
-        // Allow between 2 and 200 teams
-        if (teamsArr.length < 2) {
-            Toast.makeText(this, "Tournament should have at least 2 teams", Toast.LENGTH_SHORT)
-                    .show();
-            return false;
-        } else if (teamsArr.length > 200) {
-            Toast.makeText(this, "Tournament should have at most 200 teams", Toast.LENGTH_SHORT)
-                    .show();
-            return false;
+    private void initializeFields() {
+        tnrName = findViewById(R.id.tnrName);
+        tnrDisplayName = findViewById(R.id.tnrDisplayName);
+        tnrType = findViewById(R.id.tnrType);
+        tnrVariant = findViewById(R.id.tnrVariant);
+        tnrRated = findViewById(R.id.tnrRated);
+        tnrInitialTime = findViewById(R.id.tnrInitialTime);
+        tnrIncrement = findViewById(R.id.tnrIncrement);
+        tnrRounds = findViewById(R.id.tnrRounds);
+        tnrBreaks = findViewById(R.id.tnrBreaks);
+        tnrDuration = findViewById(R.id.tnrDuration);
+        tnrStartPos = findViewById(R.id.tnrStartPos);
+        tnrDescr = findViewById(R.id.tnrDescr);
+        tnrTeams = findViewById(R.id.tnrTeams);
+        tnrPassword = findViewById(R.id.tnrPassword);
+        tnrTeamBattleTeams = findViewById(R.id.tnrTeamBattleTeams);
+        tnrLeaders = findViewById(R.id.tnrLeaders);
+        tnrMinRating = findViewById(R.id.tnrMinRating);
+        tnrMaxRating = findViewById(R.id.tnrMaxRating);
+        tnrRatedGames = findViewById(R.id.tnrRatedGames);
+        tnrBerserk = findViewById(R.id.tnrBerserk);
+        tnrStreaks = findViewById(R.id.tnrStreaks);
+        tnrChatroom = findViewById(R.id.tnrChatroom);
+        tnrChatAccess = findViewById(R.id.tnrChatAccess);
+        // Set default position for tnrChatAccess
+        tnrChatAccess.setSelection(2);
+        tnrForbiddenPairings = findViewById(R.id.tnrForbiddenPairings);
+        tnrStartTimeHrs = findViewById(R.id.tnrStartTimeHrs);
+        tnrStartTimeMins = findViewById(R.id.tnrStartTimeMins);
+        btnSave = findViewById(R.id.btnSave);
+        loader = findViewById(R.id.saveLoader);
+        startLoader = findViewById(R.id.loader);
+    }
+
+    private void toggleFieldsBasedOnTournamentType(int tnrType) {
+        // 0: Arena, 1: Swiss, 2: Team Battle
+        if (tnrType == 0) {
+            tnrRoundsText.setVisibility(View.GONE);
+            tnrRounds.setVisibility(View.GONE);
+            tnrBreaksText.setVisibility(View.GONE);
+            tnrBreaks.setVisibility(View.GONE);
+            tnrDurationText.setVisibility(View.VISIBLE);
+            tnrDuration.setVisibility(View.VISIBLE);
+            tnrTeamsText.setText("Only members of team");
+            tnrTeamBattleTeamsText.setVisibility(View.GONE);
+            tnrTeamBattleTeams.setVisibility(View.GONE);
+            tnrLeadersText.setVisibility(View.GONE);
+            tnrLeaders.setVisibility(View.GONE);
+            tnrBerserk.setVisibility(View.VISIBLE);
+            tnrStreaks.setVisibility(View.VISIBLE);
+            tnrChatroom.setVisibility(View.VISIBLE);
+            tnrChatAccessText.setVisibility(View.GONE);
+            tnrChatAccess.setVisibility(View.GONE);
+            tnrForbiddenPairingsText.setVisibility(View.GONE);
+            tnrForbiddenPairings.setVisibility(View.GONE);
+        } else if (tnrType == 1) {
+            tnrRoundsText.setVisibility(View.VISIBLE);
+            tnrRounds.setVisibility(View.VISIBLE);
+            tnrBreaksText.setVisibility(View.VISIBLE);
+            tnrBreaks.setVisibility(View.VISIBLE);
+            tnrDurationText.setVisibility(View.GONE);
+            tnrDuration.setVisibility(View.GONE);
+            tnrTeamsText.setText("Only members of team");
+            tnrTeamBattleTeamsText.setVisibility(View.GONE);
+            tnrTeamBattleTeams.setVisibility(View.GONE);
+            tnrLeadersText.setVisibility(View.GONE);
+            tnrLeaders.setVisibility(View.GONE);
+            tnrBerserk.setVisibility(View.GONE);
+            tnrStreaks.setVisibility(View.GONE);
+            tnrChatroom.setVisibility(View.GONE);
+            tnrChatAccessText.setVisibility(View.VISIBLE);
+            tnrChatAccess.setVisibility(View.VISIBLE);
+            tnrForbiddenPairingsText.setVisibility(View.VISIBLE);
+            tnrForbiddenPairings.setVisibility(View.VISIBLE);
+        } else if (tnrType == 2) {
+            tnrRoundsText.setVisibility(View.GONE);
+            tnrRounds.setVisibility(View.GONE);
+            tnrBreaksText.setVisibility(View.GONE);
+            tnrBreaks.setVisibility(View.GONE);
+            tnrDurationText.setVisibility(View.VISIBLE);
+            tnrDuration.setVisibility(View.VISIBLE);
+            tnrTeamsText.setText("Team battle by team");
+            tnrTeamBattleTeamsText.setVisibility(View.VISIBLE);
+            tnrTeamBattleTeams.setVisibility(View.VISIBLE);
+            tnrLeadersText.setVisibility(View.VISIBLE);
+            tnrLeaders.setVisibility(View.VISIBLE);
+            tnrBerserk.setVisibility(View.VISIBLE);
+            tnrStreaks.setVisibility(View.VISIBLE);
+            tnrChatroom.setVisibility(View.VISIBLE);
+            tnrChatAccessText.setVisibility(View.GONE);
+            tnrChatAccess.setVisibility(View.GONE);
+            tnrForbiddenPairingsText.setVisibility(View.GONE);
+            tnrForbiddenPairings.setVisibility(View.GONE);
         }
-        for (String team : teamsArr) {
-            if (!team.trim().matches("[A-Za-z0-9-]+[^-]")) {
-                Toast.makeText(this, "Invalid team IDs", Toast.LENGTH_SHORT).show();
-                return false;
-            }
-        }
-        return true;
     }
 }
