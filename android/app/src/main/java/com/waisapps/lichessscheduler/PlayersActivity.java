@@ -24,12 +24,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 
 public class PlayersActivity extends AppCompatActivity implements View.OnClickListener,
@@ -51,6 +46,9 @@ public class PlayersActivity extends AppCompatActivity implements View.OnClickLi
     // The field validator
     private TournamentFieldValidator validator;
 
+    // The player file manager
+    private PlayerFileManager playerFileManager;
+
     // Current token
     String token;
 
@@ -71,6 +69,9 @@ public class PlayersActivity extends AppCompatActivity implements View.OnClickLi
 
         // Initialize field validator
         validator = new TournamentFieldValidator(this);
+
+        // Initialize player file manager
+        playerFileManager = new PlayerFileManager(getFilesDir());
 
         // Initialize recycler view
         plrContainer = findViewById(R.id.tnrContainer);
@@ -111,7 +112,7 @@ public class PlayersActivity extends AppCompatActivity implements View.OnClickLi
 
     public ArrayList<PlayerItem> getPlayers() throws IOException, JSONException {
         ArrayList<PlayerItem> players = new ArrayList<>();
-        String plrFileText = PlayerFileManager.getPlayers(getFilesDir(), token);
+        String plrFileText = playerFileManager.getPlayers(token);
         JSONArray plrArray = new JSONArray(plrFileText);
         for (int i = 0; i < plrArray.length(); i++) {
             players.add(new PlayerItem(plrArray.getJSONObject(i)));
@@ -207,7 +208,7 @@ public class PlayersActivity extends AppCompatActivity implements View.OnClickLi
             playersJSONArray.put(player);
         }
         try {
-            PlayerFileManager.writePlayersToFile(getFilesDir(), token, playersJSONArray.toString());
+            playerFileManager.writePlayersToFile(token, playersJSONArray.toString());
             Toast.makeText(this, "Successfully saved", Toast.LENGTH_SHORT).show();
         } catch (Exception e) {
             Snackbar.make(parent, "Could not save", Snackbar.LENGTH_INDEFINITE)
@@ -237,9 +238,8 @@ public class PlayersActivity extends AppCompatActivity implements View.OnClickLi
                 // Set dialog background to transparent
                 dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
                 // Set dialog dimensions
-                int width = this.getResources().getDisplayMetrics().widthPixels;
-                dialog.getWindow().setLayout((6 * width) / 7,
-                        ConstraintLayout.LayoutParams.WRAP_CONTENT);
+                int screenWidth = this.getResources().getDisplayMetrics().widthPixels;
+                dialog.getWindow().setLayout((6 * screenWidth) / 7, ConstraintLayout.LayoutParams.WRAP_CONTENT);
                 break;
         }
     }
@@ -248,13 +248,13 @@ public class PlayersActivity extends AppCompatActivity implements View.OnClickLi
     public void onDoneButtonClick(String id, String name, int position) {
         // Change id to lowercase
         id = id.toLowerCase();
-        // Remove leading/trailing spaces
+        // Remove leading/trailing spaces in name and id
         id = id.trim();
         name = name.trim();
 
-        // Validation checks
+        // Validate username and player name
         if (!validator.validateUsername(id)) return;
-        if (!validator.validateName(name)) return;
+        if (!validator.validatePlayerName(name)) return;
 
         // Check if player id already exists
         for (int i = 0; i < players.size(); i++) {
@@ -266,8 +266,7 @@ public class PlayersActivity extends AppCompatActivity implements View.OnClickLi
                 return;
             }
         }
-        if (dialog.getItemPosition() == -1 || !dialog.getInitialId().equals(id) ||
-                !dialog.getInitialName().equals(name)) {
+        if (dialog.getItemPosition() == -1 || !dialog.getInitialId().equals(id) || !dialog.getInitialName().equals(name)) {
             plrAdapter.setUnsavedChanges(true);
         }
         PlayerItem item = new PlayerItem(id, name);

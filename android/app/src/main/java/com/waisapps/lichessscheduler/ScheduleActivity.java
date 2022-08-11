@@ -46,6 +46,9 @@ public class ScheduleActivity extends AppCompatActivity {
     // The request queue
     RequestQueue queue;
 
+    // Tournament file manager
+    private TournamentFileManager tournamentFileManager;
+
     private CoordinatorLayout parent;
     private TextView labelNoItem;
     private FloatingActionButton btnAdd;
@@ -66,6 +69,9 @@ public class ScheduleActivity extends AppCompatActivity {
 
         // Initialize request queue
         queue = Volley.newRequestQueue(this);
+
+        // Initialize tournament file manager
+        tournamentFileManager = new TournamentFileManager(getFilesDir());
 
         // Initialize coordinator layout
         parent = findViewById(R.id.container);
@@ -138,10 +144,10 @@ public class ScheduleActivity extends AppCompatActivity {
 
     public ArrayList<TournamentItem> getTournaments() throws IOException, JSONException {
         ArrayList<TournamentItem> tournaments = new ArrayList<>();
-        File[] tnrFiles = TournamentFileManager.getTournamentsByToken(getFilesDir(), token);
+        File[] tnrFiles = tournamentFileManager.getTournamentsByToken(token);
         if (tnrFiles != null) {
             for (File file : tnrFiles) {
-                String fileText = TournamentFileManager.getTournamentJSON(getFilesDir(), token, file.getName());
+                String fileText = tournamentFileManager.getTournamentJSON(token, file.getName());
                 tournaments.add(new TournamentItem(new JSONObject(fileText)));
             }
             // Sort tournaments by start time

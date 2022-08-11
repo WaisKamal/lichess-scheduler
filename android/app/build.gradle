@@ -29,6 +29,7 @@ android {
 }
 
 dependencies {
+    testImplementation 'org.junit.jupiter:junit-jupiter'
     def work_version = "2.6.0"
 
     // (Java only)

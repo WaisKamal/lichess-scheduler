@@ -1,53 +1,175 @@
 package com.waisapps.lichessscheduler;
 
 import android.content.Context;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
-import android.util.Log;
 import android.widget.Toast;
 
-import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
-import com.android.volley.toolbox.Volley;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Scheduler {
-    Context context;
-    JSONObject playerNames;
-    String token;
+    private final Context context;
+    private final JSONObject playerNames;
+    private final String token;
+    private final TournamentFileManager tournamentFileManager;
+    private final PlayerFileManager playerFileManager;
 
-    public Scheduler(Context context, String token) throws IOException, JSONException {
+    public Scheduler(Context context, String token) throws JSONException, IOException {
         this.context = context;
         this.token = token;
+        this.tournamentFileManager = new TournamentFileManager(context.getFilesDir());
+        this.playerFileManager = new PlayerFileManager(context.getFilesDir());
         this.playerNames = getPlayerNames(token);
     }
 
-    public void scheduleTournament(JSONObject tnrData, RequestQueue queue) throws JSONException {
+    public void fetchWinnersAndSchedule(String token, JSONObject tnrData, RequestQueue queue) {
+        String tnrId = tnrData.optString("id", "");
+        String tnrName = tnrData.optString("name", "");
+        String tnrType = tnrData.optString("type");
+        String tnrDescription = tnrData.optString("description", "");
+        ArrayList<String> winners = new ArrayList<>();
+        Pattern placeholderPattern = Pattern.compile("<[1-3]>");
+        try {
+            // Check if name and/or description contains winners placeholders
+            JSONArray lastTnrId = tnrData.getJSONObject("status").getJSONArray("lastTnrId");
+            Matcher nameMatcher = placeholderPattern.matcher(tnrName);
+            Matcher descriptionMatcher = placeholderPattern.matcher(tnrDescription);
+            if (lastTnrId.length() > 0 && (nameMatcher.find() || descriptionMatcher.find())) {
+                String podiumRequestURL = "";
+                if (tnrType.equals("arena") || tnrType.equals("teamBattle")) {
+                    podiumRequestURL = String.format("https://lichess.org/api/tournament/%s", lastTnrId.getString(lastTnrId.length() - 1));
+                } else if (tnrType.equals("swiss")) {
+                    podiumRequestURL = String.format("https://lichess.org/api/swiss/%s/results?nb=3", lastTnrId.getString(lastTnrId.length() - 1));
+                }
+                StringRequest podiumRequest = new StringRequest(Request.Method.GET, podiumRequestURL, response -> {
+                    try {
+                        if (tnrType.equals("arena") || tnrType.equals("teamBattle")) {
+                            JSONArray podium = new JSONObject(response).getJSONArray("podium");
+                            for (int i = 0; i < podium.length(); i++) {
+                                String userId = podium.getJSONObject(i).getString("name").toLowerCase();
+                                winners.add(playerNames.has(userId) ? playerNames.getString(userId) : userId);
+                            }
+                        } else if (tnrType.equals("swiss")) {
+                            String[] podiumString = response.split("\\n|\\r\\n");
+                            for (String player : podiumString) {
+                                String userId = new JSONObject(player).getString("username").toLowerCase();
+                                winners.add(playerNames.has(userId) ? playerNames.getString(userId) : userId);
+                            }
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                    // Fill the rest of the winners array with empty strings
+                    for (int i = winners.size(); i < 3; i++) {
+                        winners.add("");
+                    }
+                    try {
+                        scheduleTournament(tnrData, winners, queue);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                        // Pending: deal with exception
+                    }
+                }, podiumRequestError -> {
+                    // If tournament not found
+                    if (podiumRequestError.networkResponse.statusCode == 404) {
+                        try {
+                            // Remove the missing tournament ID from lastTnrId
+                            lastTnrId.remove(lastTnrId.length() - 1);
+                            // Clear the winners array
+                            winners.clear();
+                            // Update tournament file
+                            updateLastTnrId(token, tnrId, lastTnrId);
+                            // The request URL for the previous tournament
+                            String previousPodiumRequestURL = "";
+                            if (tnrType.equals("arena") || tnrType.equals("teamBattle")) {
+                                previousPodiumRequestURL = String.format("https://lichess.org/api/tournament/%s", lastTnrId.getString(lastTnrId.length() - 1));
+                            } else if (tnrType.equals("swiss")) {
+                                previousPodiumRequestURL = String.format("https://lichess.org/api/swiss/%s/results?nb=3", lastTnrId.getString(lastTnrId.length() - 1));
+                            }
+                            if (lastTnrId.length() > 0) {
+                                StringRequest previousPodiumRequest = new StringRequest(Request.Method.GET, previousPodiumRequestURL, response -> {
+                                    try {
+                                        if (tnrType.equals("arena") || tnrType.equals("teamBattle")) {
+                                            JSONArray podium = new JSONObject(response).getJSONArray("podium");
+                                            for (int i = 0; i < podium.length(); i++) {
+                                                String userId = podium.getJSONObject(i).getString("name").toLowerCase();
+                                                winners.add(playerNames.has(userId) ? playerNames.getString(userId) : userId);
+                                            }
+                                        } else if (tnrType.equals("swiss")) {
+                                            String[] podiumString = response.split("\\n|\\r\\n");
+                                            for (String player : podiumString) {
+                                                String userId = new JSONObject(player).getString("username").toLowerCase();
+                                                winners.add(playerNames.has(userId) ? playerNames.getString(userId) : userId);
+                                            }
+                                        }
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
+                                    }
+                                    // Fill the rest of the winners array with empty strings
+                                    for (int i = winners.size(); i < 3; i++) {
+                                        winners.add("");
+                                    }
+                                    try {
+                                        scheduleTournament(tnrData, winners, queue);
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
+                                        // Pending: deal with exception
+                                    }
+                                }, previousPodiumRequestError -> {
+                                    // Empty the winners array if the previous tournament is also not found
+                                    winners.clear();
+                                    for (int i = 0; i < 3; i++) {
+                                        winners.add("");
+                                    }
+                                    // Empty the lastTnrId array as well
+                                    if (previousPodiumRequestError.networkResponse.statusCode == 404) {
+                                        try {
+                                            updateLastTnrId(token, tnrId, new JSONArray());
+                                        } catch (JSONException | IOException e) {
+                                            e.printStackTrace();
+                                        }
+                                    }
+                                    try {
+                                        scheduleTournament(tnrData, winners, queue);
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
+                                        // Pending: deal with exception
+                                    }
+                                });
+                                queue.add(previousPodiumRequest);
+                            }
+                        } catch (JSONException | IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
+                queue.add(podiumRequest);
+            } else {
+                for (int i = 0; i < 3; i++) {
+                    winners.add("");
+                }
+                scheduleTournament(tnrData, winners, queue);
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void scheduleTournament(JSONObject tnrData, ArrayList<String> winners, RequestQueue queue) throws JSONException {
         // The request URL
         String url = "";
 
@@ -138,134 +260,29 @@ public class Scheduler {
             requestObject.put("description", tnrData.getString("description"));
         }
 
-        // Replace any name placeholders (<1>, <2>, <3>)
-        Pattern placeholderPattern = Pattern.compile("<\\d>");
-        Matcher placeholderMatcher = placeholderPattern.matcher(requestObject.getString("name"));
-        if (placeholderMatcher.find() && !tnrData.getJSONObject("status").getString("lastTnrId").isEmpty()) {
-            // Assumes previous tournament is of the same type
-            // This reduces number of requests to Lichess and hence avoids a 429
-            if (tnrType.equals("arena") || tnrType.equals("teamBattle")) {
-                String podiumUrl = "https://lichess.org/api/tournament/"
-                        + tnrData.getJSONObject("status").getString("lastTnrId");
-                String finalUrl = url;
-                JsonObjectRequest podiumRequest = new JsonObjectRequest(Request.Method.GET, podiumUrl, null,
-                        new Response.Listener<JSONObject>() {
-                            @Override
-                            public void onResponse(JSONObject response) {
-                                try {
-                                    Log.d("podiumResponse", response.toString());
-                                    if (response.has("isFinished")) {
-                                        if (response.getBoolean("isFinished")) {
-                                            ArrayList<String> winners = new ArrayList<>();
-                                            JSONArray podium = response.getJSONArray("podium");
-                                            int podiumLength = Math.min(podium.length(), 3);
-                                            for (int i = 0; i < podiumLength; i++) {
-                                                String playerUsername = podium.getJSONObject(i)
-                                                        .getString("name");
-                                                winners.add(playerUsername);
-                                                // Replace winners' usernames with their names
-                                                if (playerNames.has(playerUsername.toLowerCase())) {
-                                                    winners.set(i, playerNames.getString(playerUsername.toLowerCase()));
-                                                }
-                                            }
-                                            String newTnrName = requestObject.getString("name")
-                                                    .replaceAll("<1>", winners.get(0))
-                                                    .replaceAll("<2>", winners.get(1))
-                                                    .replaceAll("<3>", winners.get(2));
-                                            // Slice name to no more than 30 characters
-                                            newTnrName = newTnrName.length() > 30 ? newTnrName.substring(0, 30) : newTnrName;
-                                            requestObject.put("name", newTnrName);
-                                            // Remove all warnings from tournament file
-                                            removeWarningsFromTournamentFile(token, tnrData.getString("id"));
-                                            // Send POST request and schedule tournament
-                                            createTournament(tnrData, requestObject, finalUrl, queue);
-                                        }
-                                    }
-                                } catch(JSONException | IOException e) {
-                                    Toast.makeText(context, "Podium request failed", Toast.LENGTH_SHORT).show();
-                                    e.printStackTrace();
-                                }
-                            }
-                        }, new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        try {
-                            String tnrId = tnrData.getString("id");
-                            File tnrFile = new File(context.getFilesDir() + "/data/"
-                                    + token + "/tournaments/" + tnrId);
-                            FileInputStream fis = new FileInputStream(tnrFile);
-                            byte[] data = new byte[(int) tnrFile.length()];
-                            fis.read(data);
-                            fis.close();
-                            JSONObject tnrObject = new JSONObject(new String(data, StandardCharsets.UTF_8));
-                            JSONObject tnrStatus = tnrObject.getJSONObject("status");
-                            tnrStatus.put("lastCreationResult", "warning");
-                            JSONArray errorsToWrite = new JSONArray();
-                            errorsToWrite.put("Placeholder replacement failed");
-                            tnrStatus.put("lastWarning", errorsToWrite);
-                            tnrObject.put("status", tnrStatus);
-                            FileOutputStream fos = new FileOutputStream(tnrFile);
-                            byte[] dataToWrite = tnrObject.toString().getBytes(StandardCharsets.UTF_8);
-                            fos.write(dataToWrite);
-                            fos.close();
-                        } catch (JSONException | IOException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                });
-                queue.add(podiumRequest);
-            } else if (tnrType.equals("swiss")) {
-                // PENDING deployment of API endpoint https://lichess.org/api/swiss/{id}
-                String podiumUrl = "https://lichess.org/api/swiss/"
-                        + tnrData.getJSONObject("status").getString("lastTnrId")
-                        + "/results?nb=3";
-                String finalUrl = url;
-                StringRequest podiumRequest = new StringRequest(Request.Method.GET, podiumUrl,
-                        new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        String[] responseObjects = response.split("\\n|\\r\\n");
-                        ArrayList<String> winners = new ArrayList<>();
-                        try {
-                            for (int i = 0; i < 3; i++) {
-                                String playerUsername = new JSONObject(responseObjects[i])
-                                        .getString("username");
-                                winners.add(playerUsername);
-                                // Replace winners' usernames with their names
-                                if (playerNames.has(playerUsername.toLowerCase())) {
-                                    winners.set(i, playerNames.getString(playerUsername.toLowerCase()));
-                                }
-                            }
-                            String newTnrName = requestObject.getString("name")
-                                    .replaceAll("<1>", winners.get(0))
-                                    .replaceAll("<2>", winners.get(1))
-                                    .replaceAll("<3>", winners.get(2));
-                            // Slice name to no more than 30 characters
-                            newTnrName = newTnrName.length() > 30 ? newTnrName.substring(0, 30) : newTnrName;
-                            requestObject.put("name", newTnrName);
-
-                            // Send POST request and schedule tournament
-                            createTournament(tnrData, requestObject, finalUrl, queue);
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }, new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        Toast.makeText(context, "Podium request failed", Toast.LENGTH_SHORT).show();
-                        error.printStackTrace();
-                    }
-                });
-                queue.add(podiumRequest);
-            }
-        } else {
-            // Send POST request and schedule tournament
-            createTournament(tnrData, requestObject, url, queue);
+        // Replace any name placeholders (<1>, <2>, <3>) in name and description
+        String newTnrName = requestObject.getString("name")
+                .replaceAll("<1>", winners.get(0))
+                .replaceAll("<2>", winners.get(1))
+                .replaceAll("<3>", winners.get(2));
+        // Slice name to no more than 30 characters
+        newTnrName = newTnrName.substring(0, Math.min(newTnrName.length(), 30));
+        requestObject.put("name", newTnrName);
+        if (requestObject.has("description")) {
+            String newTnrDescription = requestObject.getString("description")
+                    .replaceAll("<1>", winners.get(0))
+                    .replaceAll("<2>", winners.get(1))
+                    .replaceAll("<3>", winners.get(2));
+            // Slice description to no more than 1000 characters
+            newTnrDescription = newTnrDescription.substring(0, Math.min(newTnrDescription.length(), 1000));
+            requestObject.put("description", newTnrDescription);
         }
+
+        // Send POST request and schedule tournament
+        createTournament(tnrData, requestObject, url, queue);
     }
 
-    public void setBattleTeams(String tnrId, JSONObject tnrData, RequestQueue queue)
+    private void setBattleTeams(String tnrId, JSONObject tnrData, RequestQueue queue)
             throws JSONException {
         String teamsRequestUrl = "https://lichess.org/api/tournament/team-battle/" + tnrId;
         JSONObject teamsRequestObject = new JSONObject();
@@ -277,18 +294,11 @@ public class Scheduler {
         teamsRequestObject.put("teams", battleTeams.toString());
         teamsRequestObject.put("nbLeaders", tnrData.getInt("leaders"));
         JsonObjectRequest teamsRequest = new JsonObjectRequest(Request.Method.POST,
-                teamsRequestUrl, teamsRequestObject, new Response.Listener<JSONObject>() {
+                teamsRequestUrl, teamsRequestObject, response -> {
+            // Pending...
+        }, error -> Toast.makeText(context, "Could not add teams to team battle", Toast.LENGTH_SHORT).show()) {
             @Override
-            public void onResponse(JSONObject response) {
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Toast.makeText(context, "Could not add teams to team battle", Toast.LENGTH_SHORT).show();
-            }
-        }) {
-            @Override
-            public Map<String, String> getHeaders() throws AuthFailureError {
+            public Map<String, String> getHeaders() {
                 Map<String, String> headers = new HashMap<>();
                 headers.put("Authorization", "Bearer " + token);
                 return headers;
@@ -299,13 +309,7 @@ public class Scheduler {
 
     private JSONObject getPlayerNames(String token) throws IOException, JSONException {
         JSONObject playerNames = new JSONObject();
-        File plrFile = new File(context.getFilesDir() + "/data/"
-                + token + "/players");
-        FileInputStream fis = new FileInputStream(plrFile);
-        byte[] data = new byte[(int) plrFile.length()];
-        fis.read(data);
-        fis.close();
-        String plrFileText = new String(data, StandardCharsets.UTF_8);
+        String plrFileText = playerFileManager.getPlayers(token);
         JSONArray plrFileObject = new JSONArray(plrFileText);
         for (int i = 0; i < plrFileObject.length(); i++) {
             playerNames.put(plrFileObject.getJSONObject(i).getString("id"),
@@ -314,92 +318,75 @@ public class Scheduler {
         return playerNames;
     }
 
-    private void createTournament(JSONObject tnrData, JSONObject requestObject, String url, RequestQueue queue) {
+    private void createTournament(JSONObject tnrData, JSONObject requestObject, String url, RequestQueue queue) throws JSONException {
+        String tnrId = tnrData.getString("id");
         JsonObjectRequest request = new JsonObjectRequest(Request.Method.POST, url, requestObject,
-                new Response.Listener<JSONObject>() {
-                    @Override
-                    public void onResponse(JSONObject response) {
-                        Toast.makeText(context, "Tournament scheduled successfully", Toast.LENGTH_SHORT).show();
-                        // Update the scheduling status
-                        try {
-                            File tnrFile = new File(context.getFilesDir() + "/data/"
-                                    + token + "/tournaments/" + tnrData.getString("id"));
-                            FileInputStream fis = new FileInputStream(tnrFile);
-                            byte[] dataToRead = new byte[(int) tnrFile.length()];
-                            fis.read(dataToRead);
-                            fis.close();
-                            String tnrFileText = new String(dataToRead, StandardCharsets.UTF_8);
-                            JSONObject tnrJSONData = new JSONObject(tnrFileText);
-                            JSONObject tnrStatus = tnrJSONData.getJSONObject("status");
-                            tnrStatus.put("lastCreated", new Date().getTime());
-                            tnrStatus.put("lastTnrId", response.getString("id"));
-                            tnrStatus.put("lastTnrType", tnrData.getString("type"));
-                            tnrStatus.put("pendingPlaceholderReplacement", false);
-                            tnrStatus.put("lastCreationResult", "success");
-                            tnrStatus.put("lastError", new JSONArray());
-                            tnrJSONData.put("status", tnrStatus);
-                            FileOutputStream fos = new FileOutputStream(tnrFile);
-                            byte[] dataToWrite = tnrJSONData.toString().getBytes(StandardCharsets.UTF_8);
-                            fos.write(dataToWrite);
-                            fos.close();
+                response -> {
+                    Toast.makeText(context, "Tournament scheduled successfully", Toast.LENGTH_SHORT).show();
+                    // Update the scheduling status
+                    try {
+                        String tnrFileText = tournamentFileManager.getTournamentJSON(token, tnrId);
+                        JSONObject tnrJSONData = new JSONObject(tnrFileText);
+                        JSONObject tnrStatus = tnrJSONData.getJSONObject("status");
+                        tnrStatus.getJSONArray("lastTnrId").put(response.getString("id"));
+                        // Leave max 2 lastTnrIds
+                        if (tnrStatus.getJSONArray("lastTnrId").length() > 2) {
+                            tnrStatus.getJSONArray("lastTnrId").remove(0);
+                        }
+                        tnrStatus
+                                .put("lastCreated", new Date().getTime())
+                                .put("lastTnrType", tnrData.getString("type"))
+                                .put("pendingPlaceholderReplacement", false)
+                                .put("lastCreationResult", "success")
+                                .put("lastError", new JSONArray());
+                        tnrJSONData.put("status", tnrStatus);
+                        tournamentFileManager.writeTournamentToFile(token, tnrId, tnrJSONData.toString());
 
-                            // Add teams if tournament is a team battle
-                            if (tnrData.getString("type").equals("teamBattle")) {
-                                setBattleTeams(response.getString("id"), tnrData, queue);
+                        // Add teams if tournament is a team battle
+                        if (tnrData.getString("type").equals("teamBattle")) {
+                            setBattleTeams(response.getString("id"), tnrData, queue);
+                        }
+                    } catch (JSONException | IOException e) {
+                        e.printStackTrace();
+                    }
+                }, error -> {
+                    Toast.makeText(context, "Failed to schedule tournament", Toast.LENGTH_SHORT).show();
+                    // Write error to tournament file
+                    try {
+                        JSONObject errorObject = new JSONObject(new String(error.networkResponse.data))
+                                .getJSONObject("error");
+                        JSONArray errorToWrite = new JSONArray();
+                        Iterator<String> errorKeys = errorObject.keys();
+                        while (errorKeys.hasNext()) {
+                            String nextKey = errorKeys.next();
+                            switch(nextKey) {
+                                case "startDate":
+                                    errorToWrite.put("The specified start time has passed");
+                                    break;
+                                case "position":
+                                    errorToWrite.put("The specified starting position is invalid");
+                                    break;
+                                case "conditions.teamMember.teamId":
+                                case "teamBattleByTeam":
+                                    errorToWrite.put("You are not a leader in the specified team");
+                                    break;
+                                default:
+                                    errorToWrite.put("Unknown error occurred");
                             }
-                        } catch (JSONException | IOException e) {
-                            e.printStackTrace();
                         }
+                        String tnrFileText = tournamentFileManager.getTournamentJSON(token, tnrId);
+                        JSONObject tnrJSONData = new JSONObject(tnrFileText);
+                        JSONObject tnrStatus = tnrJSONData.getJSONObject("status");
+                        tnrStatus.put("pendingPlaceholderReplacement", false);
+                        tnrStatus.put("lastCreationResult", "error");
+                        tnrStatus.put("lastError", errorToWrite);
+                        tnrJSONData.put("status", tnrStatus);
+                        tournamentFileManager.writeTournamentToFile(token, tnrId, tnrJSONData.toString());
+                    } catch (JSONException | IOException e) {
+                        e.printStackTrace();
                     }
-                }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Toast.makeText(context, "Failed to schedule tournament", Toast.LENGTH_SHORT).show();
-                // Write error to tournament file
-                try {
-                    JSONObject errorObject = new JSONObject(new String(error.networkResponse.data))
-                            .getJSONObject("error");
-                    JSONArray errorToWrite = new JSONArray();
-                    Iterator<String> errorKeys = errorObject.keys();
-                    while (errorKeys.hasNext()) {
-                        String nextKey = errorKeys.next();
-                        switch(nextKey) {
-                            case "startDate":
-                                errorToWrite.put("The specified start time has passed");
-                                break;
-                            case "position":
-                                errorToWrite.put("The specified starting position is invalid");
-                                break;
-                            case "conditions.teamMember.teamId":
-                            case "teamBattleByTeam":
-                                errorToWrite.put("You are not a leader in the specified team");
-                                break;
-                            default:
-                                errorToWrite.put("Unknown error occurred");
-                        }
-                    }
-                    File tnrFile = new File(context.getFilesDir() + "/data/" + token +
-                            "/tournaments/" + tnrData.getString("id"));
-                    FileInputStream fis = new FileInputStream(tnrFile);
-                    byte[] dataToRead = new byte[(int) tnrFile.length()];
-                    fis.read(dataToRead);
-                    fis.close();
-                    JSONObject tnrJSONData = new JSONObject(new String(dataToRead, StandardCharsets.UTF_8));
-                    JSONObject tnrStatus = tnrJSONData.getJSONObject("status");
-                    tnrStatus.put("pendingPlaceholderReplacement", false);
-                    tnrStatus.put("lastCreationResult", "error");
-                    tnrStatus.put("lastError", errorToWrite);
-                    tnrJSONData.put("status", tnrStatus);
-                    FileOutputStream fos = new FileOutputStream(tnrFile);
-                    byte[] dataToWrite = tnrJSONData.toString().getBytes(StandardCharsets.UTF_8);
-                    fos.write(dataToWrite);
-                    fos.close();
-                } catch (JSONException | IOException e) {
-                    e.printStackTrace();
-                }
-                error.printStackTrace();
-            }
-        }) {
+                    error.printStackTrace();
+                }) {
             @Override
             public Map<String, String> getHeaders() {
                 Map<String, String> headers = new HashMap<>();
@@ -411,35 +398,24 @@ public class Scheduler {
         queue.add(request);
     }
 
-    private boolean isSameDay(Date a, Date b) {
-        return (a.getDay() == b.getDay() && a.getMonth() == b.getMonth() && a.getYear() == b.getYear());
+    private void updateLastTnrId(String token, String tnrId, JSONArray lastTnrId) throws IOException, JSONException {
+        String tnrFileText = tournamentFileManager.getTournamentJSON(token, tnrId);
+        JSONObject tnrJSONData = new JSONObject(tnrFileText);
+        tnrJSONData.getJSONObject("status").put("lastTnrId", lastTnrId);
+        tournamentFileManager.writeTournamentToFile(token, tnrId, tnrJSONData.toString());
     }
 
     private void removeWarningsFromTournamentFile(String token, String tnrId) throws IOException, JSONException {
-        File tnrFile = new File(context.getFilesDir() + "/data/" + token + "/tournaments/" + tnrId);
-        FileInputStream fis = new FileInputStream(tnrFile);
-        byte[] dataToRead = new byte[(int) tnrFile.length()];
-        fis.read(dataToRead);
-        fis.close();
-        JSONObject tnrJSONData = new JSONObject(new String(dataToRead, StandardCharsets.UTF_8));
+        String tnrFileText = tournamentFileManager.getTournamentJSON(token, tnrId);
+        JSONObject tnrJSONData = new JSONObject(tnrFileText);
         tnrJSONData.getJSONObject("status").put("lastWarning", new JSONArray());
-        FileOutputStream fos = new FileOutputStream(tnrFile);
-        byte[] dataToWrite = tnrJSONData.toString().getBytes(StandardCharsets.UTF_8);
-        fos.write(dataToWrite);
-        fos.close();
+        tournamentFileManager.writeTournamentToFile(token, tnrId, tnrJSONData.toString());
     }
 
     private void removeErrorsFromTournamentFile(String token, String tnrId) throws IOException, JSONException {
-        File tnrFile = new File(context.getFilesDir() + "/data/" + token + "/tournaments/" + tnrId);
-        FileInputStream fis = new FileInputStream(tnrFile);
-        byte[] dataToRead = new byte[(int) tnrFile.length()];
-        fis.read(dataToRead);
-        fis.close();
-        JSONObject tnrJSONData = new JSONObject(new String(dataToRead, StandardCharsets.UTF_8));
+        String tnrFileText = tournamentFileManager.getTournamentJSON(token, tnrId);
+        JSONObject tnrJSONData = new JSONObject(tnrFileText);
         tnrJSONData.getJSONObject("status").put("lastError", new JSONArray());
-        FileOutputStream fos = new FileOutputStream(tnrFile);
-        byte[] dataToWrite = tnrJSONData.toString().getBytes(StandardCharsets.UTF_8);
-        fos.write(dataToWrite);
-        fos.close();
+        tournamentFileManager.writeTournamentToFile(token, tnrId, tnrJSONData.toString());
     }
 }

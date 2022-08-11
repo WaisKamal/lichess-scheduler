@@ -2,13 +2,18 @@ package com.waisapps.lichessscheduler;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
 public class TournamentFileManager {
-    public static String getTournamentJSON(File filesDir, String token, String tnrId) throws IOException {
+    private final File filesDir;
+
+    public TournamentFileManager(File filesDir) {
+        this.filesDir = filesDir;
+    }
+
+    public String getTournamentJSON(String token, String tnrId) throws IOException {
         File tnrFile = new File(String.format("%s/data/%s/tournaments/%s",
                 filesDir, token, tnrId));
         FileInputStream fis = new FileInputStream(tnrFile);
@@ -18,7 +23,7 @@ public class TournamentFileManager {
         return new String(data, StandardCharsets.UTF_8);
     }
 
-    public static void writeTournamentToFile(File filesDir, String token, String tnrId, String tnrJSON) throws IOException {
+    public void writeTournamentToFile(String token, String tnrId, String tnrJSON) throws IOException {
         File dataDir = new File(filesDir, "data");
         if (!dataDir.exists()) {
             dataDir.mkdir();
@@ -37,7 +42,7 @@ public class TournamentFileManager {
         tnrFileStream.close();
     }
 
-    public static File[] getTournamentsByToken(File filesDir, String token) {
+    public File[] getTournamentsByToken(String token) {
         File tnrDir = new File(String.format("%s/data/%s/tournaments",
                 filesDir, token));
         return tnrDir.listFiles();

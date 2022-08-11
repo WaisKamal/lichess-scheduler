@@ -7,7 +7,6 @@
         <item>Arena</item>
         <item>Swiss</item>
         <item>Team battle</item>
-        <!-- <item>Team battle</item> -->
     </string-array>
     <string-array name="variant">
         <item>Standard</item>

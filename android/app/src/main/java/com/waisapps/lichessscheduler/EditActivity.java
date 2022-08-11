@@ -62,6 +62,9 @@ public class EditActivity extends AppCompatActivity implements MenuItem.OnMenuIt
     // Field validator
     private TournamentFieldValidator validator;
 
+    // Tournament file manager
+    private TournamentFileManager tournamentFileManager;
+
     // Menu buttons
     private MenuItem menuPlayers;
 
@@ -69,7 +72,7 @@ public class EditActivity extends AppCompatActivity implements MenuItem.OnMenuIt
     private FrameLayout frameLayout;
 
     // Fields
-    private static CardView startLoader;
+    private CardView startLoader;
     private TextView tnrInitialTimeText, tnrIncrementText, tnrRoundsText, tnrBreaksText,
             tnrDurationText, tnrTeamsText, tnrTeamBattleTeamsText, tnrLeadersText,
             tnrMinRatingText, tnrMaxRatingText, tnrRatedGamesText, tnrForbiddenPairingsText,
@@ -114,6 +117,9 @@ public class EditActivity extends AppCompatActivity implements MenuItem.OnMenuIt
 
         // Initialize field validator
         validator = new TournamentFieldValidator(this);
+
+        // Initialize tournament file manager
+        tournamentFileManager = new TournamentFileManager(getFilesDir());
 
         // Initialize current token and username
         token = getSharedPreferences("com.waisapps.lichessscheduler.userinfo", MODE_PRIVATE).getString("token", "");
@@ -205,7 +211,7 @@ public class EditActivity extends AppCompatActivity implements MenuItem.OnMenuIt
 
             // Read the tournament from file as a JSON object
             try {
-                String tnrFileText = TournamentFileManager.getTournamentJSON(getFilesDir(), token, currentTnrId);
+                String tnrFileText = tournamentFileManager.getTournamentJSON(token, currentTnrId);
                 // The current tournament data
                 JSONObject tnrData = new JSONObject(tnrFileText);
 
@@ -540,7 +546,7 @@ public class EditActivity extends AppCompatActivity implements MenuItem.OnMenuIt
             tnrStatus = new JSONObject();
             tnrStatus.put("schedulingEnabled", true);
             tnrStatus.put("lastCreated", 0);
-            tnrStatus.put("lastTnrId", "");
+            tnrStatus.put("lastTnrId", new JSONArray());
             tnrStatus.put("lastTnrType", "");
             tnrStatus.put("pendingPlaceholderReplacement", false);
             tnrStatus.put("lastCreationResult", "");
@@ -555,7 +561,7 @@ public class EditActivity extends AppCompatActivity implements MenuItem.OnMenuIt
         if (!validator.validateInitialTime(tnrInitialTime.getProgress(), tnrIncrement.getProgress())) return;
         if (tnrType.getSelectedItemPosition() == 0 && !validator.validateDuration(tnrInitialTime.getProgress(), tnrDuration.getProgress()))
             return;
-        if (!validator.validateFEN(tnrVariantValues[tnrVariant.getSelectedItemPosition()], tnrStartPos.getText().toString())) return;
+        if (tnrVariant.getSelectedItemPosition() == 0 && !validator.validateFEN(tnrStartPos.getText().toString())) return;
         if (!validator.validateTeam(tnrType.getSelectedItemPosition(), tnrTeams.getSelectedItemPosition()))
             return;
         if (tnrType.getSelectedItemPosition() == 2 && !validator.validateTeamBattleTeams(tnrTeamBattleTeams.getText().toString()))
@@ -573,7 +579,7 @@ public class EditActivity extends AppCompatActivity implements MenuItem.OnMenuIt
         // Save the tournament to file
         String tnrFileName = tnr.getString("id");
         try {
-            TournamentFileManager.writeTournamentToFile(getFilesDir(), token, tnrFileName, tnr.toString());
+            tournamentFileManager.writeTournamentToFile(token, tnrFileName, tnr.toString());
             Toast.makeText(this, "Successfully saved", Toast.LENGTH_SHORT).show();
 
             // Hide the loader
@@ -583,12 +589,11 @@ public class EditActivity extends AppCompatActivity implements MenuItem.OnMenuIt
             // Go to ScheduleActivity and kill this activity
             if (getIntent().hasExtra(IntentConstants.ID) || getIntent().hasExtra(IntentConstants.FROM_ACTIVITY)) {
                 setResult(1);
-                finish();
             } else {
                 Intent intent = new Intent(this, ScheduleActivity.class);
                 startActivity(intent);
-                finish();
             }
+            finish();
         } catch(Exception e) {
             Snackbar.make(frameLayout, "Could not save", Snackbar.LENGTH_INDEFINITE)
                     .setAction("RETRY", new View.OnClickListener() {
@@ -614,59 +619,9 @@ public class EditActivity extends AppCompatActivity implements MenuItem.OnMenuIt
         startLoader.setVisibility(View.VISIBLE);
 
         String url = "https://lichess.org/api/team/of/" + username;
-        JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(url, new Response.Listener<JSONArray>() {
-            @Override
-            public void onResponse(JSONArray response) {
-                startLoader.setVisibility(View.GONE);
-                if (response.length() == 0) {
-                    Snackbar.make(frameLayout, "Could not get teams", Snackbar.LENGTH_INDEFINITE)
-                            .setAction("RETRY", new View.OnClickListener() {
-                                @Override
-                                public void onClick(View v) {
-                                    populateTeamsSpinner();
-                                }
-                            })
-                            .setActionTextColor(0xFFE64A19)
-                            .show();
-                } else {
-                    ArrayList<String> newTeamIds = new ArrayList<>();
-                    newTeamIds.add("");
-                    ArrayList<String> newTeamNames = new ArrayList<>();
-                    newTeamNames.add("Not specified");
-                    try {
-                        for (int i = 0; i < response.length(); i++) {
-                            JSONArray teamLeaders = response.getJSONObject(i).getJSONArray("leaders");
-                            for (int j = 0; j < teamLeaders.length(); j++) {
-                                if (teamLeaders.getJSONObject(j).getString("id").equals(username.toLowerCase())) {
-                                    newTeamIds.add(response.getJSONObject(i).getString("id"));
-                                    newTeamNames.add(response.getJSONObject(i).getString("name"));
-                                }
-                            }
-                        }
-                        teamIds = newTeamIds;
-                        teamNames = newTeamNames;
-                        ArrayAdapter<String> adapter = new ArrayAdapter<>(EditActivity.this,
-                                R.layout.support_simple_spinner_dropdown_item, teamNames);
-                        tnrTeams.setAdapter(adapter);
-                        Intent intent = getIntent();
-                        if (intent.hasExtra(IntentConstants.TEAM)) {
-                            String intentTeam = intent.getStringExtra(IntentConstants.TEAM);
-                            for (int j = 0; j < teamIds.size(); j++) {
-                                if (teamIds.get(j).equals(intentTeam)) {
-                                    tnrTeams.setSelection(j);
-                                    break;
-                                }
-                            }
-                        }
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                startLoader.setVisibility(View.GONE);
+        JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(url, response -> {
+            startLoader.setVisibility(View.GONE);
+            if (response.length() == 0) {
                 Snackbar.make(frameLayout, "Could not get teams", Snackbar.LENGTH_INDEFINITE)
                         .setAction("RETRY", new View.OnClickListener() {
                             @Override
@@ -676,7 +631,51 @@ public class EditActivity extends AppCompatActivity implements MenuItem.OnMenuIt
                         })
                         .setActionTextColor(0xFFE64A19)
                         .show();
+            } else {
+                ArrayList<String> newTeamIds = new ArrayList<>();
+                newTeamIds.add("");
+                ArrayList<String> newTeamNames = new ArrayList<>();
+                newTeamNames.add("Not specified");
+                try {
+                    for (int i = 0; i < response.length(); i++) {
+                        JSONArray teamLeaders = response.getJSONObject(i).getJSONArray("leaders");
+                        for (int j = 0; j < teamLeaders.length(); j++) {
+                            if (teamLeaders.getJSONObject(j).getString("id").equals(username.toLowerCase())) {
+                                newTeamIds.add(response.getJSONObject(i).getString("id"));
+                                newTeamNames.add(response.getJSONObject(i).getString("name"));
+                            }
+                        }
+                    }
+                    teamIds = newTeamIds;
+                    teamNames = newTeamNames;
+                    ArrayAdapter<String> adapter = new ArrayAdapter<>(EditActivity.this,
+                            R.layout.support_simple_spinner_dropdown_item, teamNames);
+                    tnrTeams.setAdapter(adapter);
+                    Intent intent = getIntent();
+                    if (intent.hasExtra(IntentConstants.TEAM)) {
+                        String intentTeam = intent.getStringExtra(IntentConstants.TEAM);
+                        for (int j = 0; j < teamIds.size(); j++) {
+                            if (teamIds.get(j).equals(intentTeam)) {
+                                tnrTeams.setSelection(j);
+                                break;
+                            }
+                        }
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
             }
+        }, error -> {
+            startLoader.setVisibility(View.GONE);
+            Snackbar.make(frameLayout, "Could not get teams", Snackbar.LENGTH_INDEFINITE)
+                    .setAction("RETRY", new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            populateTeamsSpinner();
+                        }
+                    })
+                    .setActionTextColor(0xFFE64A19)
+                    .show();
         });
         requestQueue.add(jsonArrayRequest);
     }

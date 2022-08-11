@@ -54,7 +54,6 @@ public class SchedulingWorker extends Worker {
             if (!tnrDir.exists()) return Result.success();
             File[] tnrFiles = tnrDir.listFiles();
             if (tnrFiles == null) return Result.success();
-
             try {
                 Scheduler scheduler = new Scheduler(context, tokenFolder.getName());
                 for (File file : tnrFiles) {

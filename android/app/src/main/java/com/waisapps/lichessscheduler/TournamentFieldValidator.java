@@ -86,9 +86,8 @@ public class TournamentFieldValidator {
         return true;
     }
 
-    public boolean validateFEN(String variant, String fen) {
+    public boolean validateFEN(String fen) {
         if (fen.isEmpty()) return true;
-        if (!variant.equals("standard") && !variant.equals("chess960")) return false;
         String pieces = "kqrbnpKQRBNP";
         String nums = "12345678";
         int rows = 1;
@@ -170,7 +169,7 @@ public class TournamentFieldValidator {
         return true;
     }
 
-    public boolean validateName(String name) {
+    public boolean validatePlayerName(String name) {
         if (name.replaceAll("\\s", "").length() < 2) {
             Toast.makeText(context, "Name cannot be empty", Toast.LENGTH_SHORT).show();
             return false;

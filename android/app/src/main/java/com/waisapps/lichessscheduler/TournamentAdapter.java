@@ -10,7 +10,6 @@ import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.Switch;
 import android.widget.TextView;
 
@@ -26,7 +25,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -44,12 +42,18 @@ public class TournamentAdapter extends RecyclerView.Adapter<TournamentAdapter.Vi
     private Context context;
     private String token;
     private RequestQueue queue;
+    private Scheduler scheduler;
 
-    public TournamentAdapter(List<TournamentItem> tnrs, Context ctx, String tkn, RequestQueue reqQueue) {
-        tournaments = tnrs;
-        context = ctx;
-        token = tkn;
-        queue = reqQueue;
+    public TournamentAdapter(List<TournamentItem> tournaments, Context context, String token, RequestQueue queue) {
+        this.tournaments = tournaments;
+        this.context = context;
+        this.token = token;
+        this.queue = queue;
+        try {
+            scheduler = new Scheduler(context, token);
+        } catch (JSONException | IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public void refreshAdapter(List<TournamentItem> tnrs) {
@@ -122,34 +126,34 @@ public class TournamentAdapter extends RecyclerView.Adapter<TournamentAdapter.Vi
                     break;
 
                 case R.id.btnRetry:
-                    Scheduler scheduler = null;
-                    try {
-                        scheduler = new Scheduler(context, token);
-                        scheduler.scheduleTournament(tournaments.get(getAdapterPosition()).data, queue);
-                    } catch (IOException | JSONException e) {
-                        e.printStackTrace();
+                    if (scheduler == null) {
+                        try {
+                            scheduler = new Scheduler(context, token);
+                            scheduler.fetchWinnersAndSchedule(token, tournaments.get(getAdapterPosition()).data, queue);
+                        } catch (IOException | JSONException e) {
+                            e.printStackTrace();
+                        }
+                    } else {
+                        scheduler.fetchWinnersAndSchedule(token, tournaments.get(getAdapterPosition()).data, queue);
                     }
                     break;
 
                 case R.id.btnRemove:
-                    DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            if (which == DialogInterface.BUTTON_POSITIVE) {
-                                try {
-                                    int index = getAdapterPosition();
-                                    String tnrId = tournaments.get(index).data.getString("id");
-                                    File tnrFile = new File(context.getFilesDir() + "/data/"
-                                            + token + "/tournaments/" + tnrId);
-                                    if (!tnrFile.delete()) {
-                                        return;
-                                    }
-                                    tournaments.remove(getAdapterPosition());
-                                    notifyItemRemoved(index);
-                                    notifyItemRangeChanged(index, tournaments.size());
-                                } catch (JSONException e) {
-                                    e.printStackTrace();
+                    DialogInterface.OnClickListener dialogClickListener = (dialog, which) -> {
+                        if (which == DialogInterface.BUTTON_POSITIVE) {
+                            try {
+                                int index = getAdapterPosition();
+                                String tnrId = tournaments.get(index).data.getString("id");
+                                File tnrFile = new File(context.getFilesDir() + "/data/"
+                                        + token + "/tournaments/" + tnrId);
+                                if (!tnrFile.delete()) {
+                                    return;
                                 }
+                                tournaments.remove(getAdapterPosition());
+                                notifyItemRemoved(index);
+                                notifyItemRangeChanged(index, tournaments.size());
+                            } catch (JSONException e) {
+                                e.printStackTrace();
                             }
                         }
                     };
