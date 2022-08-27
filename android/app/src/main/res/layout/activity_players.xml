@@ -5,8 +5,21 @@
     android:id="@+id/container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/backgroundColor"
+    android:background="?attr/bgColor"
     tools:context=".PlayersActivity">
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        app:cardBackgroundColor="@android:color/transparent"
+        app:cardCornerRadius="100dp">
+
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
+            app:theme="@style/MainToolbar"
+            style="@style/MainToolbar"/>
+    </androidx.cardview.widget.CardView>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/tnrContainer"
@@ -14,7 +27,7 @@
         android:layout_height="match_parent"
         android:clipToPadding="false"
         android:paddingStart="16dp"
-        android:paddingTop="16dp"
+        android:paddingTop="90dp"
         android:paddingEnd="16dp"
         android:paddingBottom="100dp"
         app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
@@ -27,6 +40,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:text="You have no saved players"
+        android:textColor="?attr/textColorLight"
         android:textSize="16sp"
         android:visibility="gone"
         tools:visibility="gone" />
@@ -40,7 +54,7 @@
         android:layout_marginBottom="20dp"
         android:clickable="true"
         android:src="@drawable/ic_player_add"
-        app:backgroundTint="@color/primaryColor"
+        app:backgroundTint="?attr/floatingActionButtonColor"
         app:borderWidth="0dp" />
 
     <androidx.cardview.widget.CardView

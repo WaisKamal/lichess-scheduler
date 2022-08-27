@@ -3,22 +3,19 @@
     package="com.waisapps.lichessscheduler">
 
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.VIBRATE" />
 
     <application
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher_background"
         android:label="@string/app_name"
-        android:requestLegacyExternalStorage="true"
         android:supportsRtl="true"
-        android:theme="@style/Theme.LichessScheduler">
-        <activity android:name=".SettingsActivity" />
+        android:theme="@style/Theme_LichessScheduler">
         <activity
-            android:name=".SplashActivity"
-            android:theme="@style/Theme.LichessScheduler.NoActionBar">
+            android:name=".SettingsActivity"
+            android:label="Settings" />
+        <activity
+            android:name=".SplashActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -29,17 +26,15 @@
             android:name=".PlayersActivity"
             android:label="Players" />
         <activity
-            android:name=".LoginActivity"
-            android:theme="@style/Theme.LichessScheduler.NoActionBar" />
+            android:name=".LoginActivity" />
         <activity
             android:name=".ScheduleActivity"
-            android:label="View Schedule" />
+            android:label="Schedule" />
         <activity
             android:name=".EditActivity"
             android:label="New Tournament" />
         <activity
-            android:name=".MainActivity"
-            android:theme="@style/Theme.LichessScheduler.NoActionBar"/>
+            android:name=".MainActivity" />
         <activity
             android:name=".NotifyActivity"
             android:label="Create Notifications" />

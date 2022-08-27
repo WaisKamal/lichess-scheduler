@@ -18,7 +18,7 @@ public class TournamentFieldValidator {
             Toast.makeText(context, "Tournament name must be between 2 and 30 characters long", Toast.LENGTH_SHORT).show();
             return false;
         }
-        if (!name.matches("(\\w|\\s|-|,|\\(|\\)|<\\d>){2,30}") || name.toLowerCase().contains("lichess")) {
+        if (!name.matches("(\\w|\\s|-|,|\\(|\\)|<[1-3]>){2,30}") || name.toLowerCase().contains("lichess")) {
             Toast.makeText(context, "Invalid tournament name", Toast.LENGTH_SHORT).show();
             return false;
         }
@@ -71,15 +71,14 @@ public class TournamentFieldValidator {
         return true;
     }
 
-    public boolean validateDuration(int initialTime, int duration) {
-        // Check if duration meets minimum duration
-        if (fieldValues.tnrDurationValues[duration] < fieldValues.tnrInitialTimeValues[initialTime] / 12) {
+    public boolean validateDuration(int initialTime, int increment, int duration) {
+        double estimatedGameSeconds = (fieldValues.tnrInitialTimeValues[initialTime]
+                + fieldValues.tnrIncrementValues[increment] * 30) * 2 * 0.8 + 15;
+        double estimatedPlayableGames = fieldValues.tnrDurationValues[duration] * 60 / estimatedGameSeconds;
+        if (estimatedPlayableGames < 3) {
             Toast.makeText(context, "You must increase tournament duration", Toast.LENGTH_SHORT).show();
             return false;
-        } else if (
-                (initialTime == 1 && duration > 11) || (initialTime == 2 && duration > 15) ||
-                        (initialTime == 3 && duration > 17) || (initialTime == 4 && duration > 19) ||
-                        (initialTime == 5 && duration > 22) || (initialTime == 6 && duration > 24)) {
+        } else if (estimatedPlayableGames > 150) {
             Toast.makeText(context, "You must decrease tournament duration", Toast.LENGTH_SHORT).show();
             return false;
         }

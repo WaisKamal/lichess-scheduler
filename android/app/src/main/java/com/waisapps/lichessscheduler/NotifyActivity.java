@@ -12,7 +12,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
-public class NotifyActivity extends AppCompatActivity {
+public class NotifyActivity extends BaseActivity {
 
     private static final String CHANNEL_ID = "nvxq5518";
 

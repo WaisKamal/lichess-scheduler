@@ -6,6 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginBottom="16dp"
+    app:cardBackgroundColor="?attr/objectBackgroundColor"
     app:cardCornerRadius="5dp"
     app:cardElevation="2dp">
 
@@ -33,7 +34,7 @@
             android:layout_marginStart="16dp"
             android:layout_marginEnd="8dp"
             android:text="Hourly Rapid Arena"
-            android:textColor="@color/textColor"
+            android:textColor="?attr/textColor"
             android:textSize="16sp"
             android:textStyle="bold"
             app:layout_constraintEnd_toStartOf="@+id/schedulingSwitch"
@@ -46,6 +47,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
             android:text="10+0"
+            android:textColor="?attr/textColorLight"
             app:layout_constraintStart_toStartOf="@+id/name"
             app:layout_constraintTop_toBottomOf="@+id/name" />
 
@@ -55,6 +57,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:text="\u2022"
+            android:textColor="?attr/textColorLight"
             app:layout_constraintBottom_toBottomOf="@+id/time"
             app:layout_constraintStart_toEndOf="@+id/time"
             app:layout_constraintTop_toTopOf="@+id/time" />
@@ -65,6 +68,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:text="Standard"
+            android:textColor="?attr/textColorLight"
             app:layout_constraintBottom_toBottomOf="@+id/sep1"
             app:layout_constraintStart_toEndOf="@+id/sep1"
             app:layout_constraintTop_toTopOf="@+id/sep1" />
@@ -75,6 +79,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:text="\u2022"
+            android:textColor="?attr/textColorLight"
             app:layout_constraintBottom_toBottomOf="@+id/variant"
             app:layout_constraintStart_toEndOf="@+id/variant"
             app:layout_constraintTop_toTopOf="@+id/variant" />
@@ -85,6 +90,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:text="Rated"
+            android:textColor="?attr/textColorLight"
             app:layout_constraintBottom_toBottomOf="@+id/sep2"
             app:layout_constraintStart_toEndOf="@+id/sep2"
             app:layout_constraintTop_toTopOf="@+id/sep2" />
@@ -106,6 +112,7 @@
             android:layout_marginTop="4dp"
             android:layout_marginBottom="20dp"
             android:text="120 minutes"
+            android:textColor="?attr/textColorLight"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toEndOf="@+id/timeIcon"
             app:layout_constraintTop_toBottomOf="@+id/time"
@@ -117,6 +124,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:text="10:00"
+            android:textColor="?attr/textColor"
             app:layout_constraintEnd_toEndOf="@+id/tnrIcon"
             app:layout_constraintStart_toStartOf="@+id/tnrIcon"
             app:layout_constraintTop_toBottomOf="@+id/tnrIcon" />
@@ -149,7 +157,7 @@
             android:id="@+id/overlay"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:background="@color/overlayColorLight"
+            android:background="?attr/overlayColorLight"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -214,6 +222,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="8dp"
                 android:text="Scheduling failed"
+                android:textColor="?attr/textColor"
                 android:textStyle="bold"
                 app:layout_constraintBottom_toBottomOf="@+id/imageView3"
                 app:layout_constraintStart_toEndOf="@+id/imageView3"
@@ -226,6 +235,7 @@
                 android:layout_marginTop="4dp"
                 android:layout_marginEnd="20dp"
                 android:text="name"
+                android:textColor="?attr/textColorLight"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="@+id/textView25"
                 app:layout_constraintTop_toBottomOf="@+id/textView25" />
@@ -236,6 +246,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
                 android:text="- Must be at least 2 characters long"
+                android:textColor="?attr/textColorLight"
                 app:layout_constraintEnd_toEndOf="@+id/textView26"
                 app:layout_constraintStart_toStartOf="@+id/textView26"
                 app:layout_constraintTop_toBottomOf="@+id/textView26" />
@@ -245,6 +256,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:text="- Must be at most 30 characters long"
+                android:textColor="?attr/textColorLight"
                 app:layout_constraintEnd_toEndOf="@+id/textView27"
                 app:layout_constraintStart_toStartOf="@+id/textView27"
                 app:layout_constraintTop_toBottomOf="@+id/textView27" />
@@ -254,6 +266,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:text="- Must not contain &quot;lichess&quot;"
+                android:textColor="?attr/textColorLight"
                 app:layout_constraintEnd_toEndOf="@+id/textView28"
                 app:layout_constraintStart_toStartOf="@+id/textView28"
                 app:layout_constraintTop_toBottomOf="@+id/textView28" />
@@ -264,6 +277,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:text="startDate"
+                android:textColor="?attr/textColorLight"
                 app:layout_constraintEnd_toEndOf="@+id/textView26"
                 app:layout_constraintStart_toStartOf="@+id/textView26"
                 app:layout_constraintTop_toBottomOf="@+id/textView32" />
@@ -274,6 +288,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
                 android:text="- The date must be set in the future"
+                android:textColor="?attr/textColorLight"
                 app:layout_constraintEnd_toEndOf="@+id/textView33"
                 app:layout_constraintStart_toStartOf="@+id/textView33"
                 app:layout_constraintTop_toBottomOf="@+id/textView33" />
@@ -284,6 +299,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:text="position"
+                android:textColor="?attr/textColorLight"
                 app:layout_constraintEnd_toEndOf="@+id/textView33"
                 app:layout_constraintStart_toStartOf="@+id/textView33"
                 app:layout_constraintTop_toBottomOf="@+id/textView34" />
@@ -296,7 +312,8 @@
                 android:text="- Invalid position"
                 app:layout_constraintEnd_toEndOf="@+id/textView35"
                 app:layout_constraintStart_toStartOf="@+id/textView35"
-                app:layout_constraintTop_toBottomOf="@+id/textView35" />
+                app:layout_constraintTop_toBottomOf="@+id/textView35"
+                android:textColor="?attr/textColorLight" />
 
             <TextView
                 android:id="@+id/textView37"
@@ -304,6 +321,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:text="conditions.teamMember.teamId"
+                android:textColor="?attr/textColorLight"
                 app:layout_constraintEnd_toEndOf="@+id/textView35"
                 app:layout_constraintStart_toStartOf="@+id/textView35"
                 app:layout_constraintTop_toBottomOf="@+id/textView36" />
@@ -314,6 +332,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
                 android:text="- error.unknown"
+                android:textColor="?attr/textColorLight"
                 app:layout_constraintEnd_toEndOf="@+id/textView37"
                 app:layout_constraintStart_toStartOf="@+id/textView37"
                 app:layout_constraintTop_toBottomOf="@+id/textView37" />
@@ -324,6 +343,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:text="teamBattleByTeam"
+                android:textColor="?attr/textColorLight"
                 app:layout_constraintEnd_toEndOf="@+id/textView37"
                 app:layout_constraintStart_toStartOf="@+id/textView37"
                 app:layout_constraintTop_toBottomOf="@+id/textView38" />
@@ -334,6 +354,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
                 android:text="- error.unknown"
+                android:textColor="?attr/textColorLight"
                 app:layout_constraintEnd_toEndOf="@+id/textView39"
                 app:layout_constraintStart_toStartOf="@+id/textView39"
                 app:layout_constraintTop_toBottomOf="@+id/textView39" />
@@ -358,7 +379,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="8dp"
                 android:text="Remove"
-                android:textColor="@color/textColorColored"
+                android:textColor="?attr/textColorColored"
                 app:layout_constraintStart_toEndOf="@+id/btnRetry"
                 app:layout_constraintTop_toTopOf="@+id/btnRetry" />
         </androidx.constraintlayout.widget.ConstraintLayout>

@@ -3,6 +3,6 @@
     android:shape="rectangle"
     android:padding="10dp">
 
-    <solid android:color="@color/spinnerBackground" />
+    <solid android:color="?attr/spinnerBackground" />
     <corners android:radius="5dp" />
 </shape>

@@ -5,8 +5,21 @@
     android:id="@+id/frameLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/backgroundColor"
+    android:background="?attr/bgColor"
     tools:context=".EditActivity">
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        app:cardBackgroundColor="@android:color/transparent"
+        app:cardCornerRadius="100dp">
+
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
+            app:theme="@style/MainToolbar"
+            style="@style/MainToolbar"/>
+    </androidx.cardview.widget.CardView>
 
     <ScrollView
         android:id="@+id/container"
@@ -20,30 +33,23 @@
             android:animateLayoutChanges="true"
             android:focusable="true"
             android:focusableInTouchMode="true"
-            android:paddingTop="16dp"
+            android:paddingTop="90dp"
             android:paddingBottom="16dp">
 
             <EditText
                 android:id="@+id/tnrName"
-                android:layout_width="0dp"
-                android:layout_height="48dp"
-                android:layout_marginTop="8dp"
-                android:background="@drawable/rounded_corners"
-                android:ems="10"
+                style="@style/TextField"
                 android:hint="Tournament name"
-                android:inputType="textPersonName"
+                android:inputType="text"
                 android:maxLength="30"
                 android:nextFocusDown="@+id/tnrType"
-                android:padding="12dp"
-                android:textSize="16sp"
                 app:layout_constraintEnd_toEndOf="@+id/textView5"
                 app:layout_constraintStart_toStartOf="@+id/textView5"
                 app:layout_constraintTop_toBottomOf="@+id/textView5" />
 
             <TextView
                 android:id="@+id/textView5"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                style="@style/FieldLabel"
                 android:layout_marginStart="16dp"
                 android:layout_marginEnd="16dp"
                 android:text="Tournament name"
@@ -53,8 +59,7 @@
 
             <TextView
                 android:id="@+id/textView12"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                style="@style/FieldLabel"
                 android:layout_marginTop="16dp"
                 android:text="Tournament type"
                 app:layout_constraintEnd_toStartOf="@+id/textView13"
@@ -65,8 +70,7 @@
 
             <TextView
                 android:id="@+id/textView13"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                style="@style/FieldLabel"
                 android:layout_marginStart="16dp"
                 android:text="Variant"
                 app:layout_constraintBottom_toBottomOf="@+id/textView12"
@@ -77,15 +81,9 @@
 
             <Spinner
                 android:id="@+id/tnrType"
-                android:layout_width="0dp"
-                android:layout_height="48dp"
-                android:layout_marginTop="8dp"
-                android:background="@drawable/rounded_corners"
-                android:ems="10"
+                style="@style/DropDownField"
                 android:entries="@array/tournament_type"
-                android:inputType="textPersonName"
                 android:nextFocusDown="@+id/tnrVariant"
-                android:padding="4dp"
                 android:text="Name"
                 app:layout_constraintEnd_toEndOf="@+id/textView12"
                 app:layout_constraintStart_toStartOf="@+id/textView12"
@@ -93,23 +91,18 @@
 
             <Spinner
                 android:id="@+id/tnrVariant"
-                android:layout_width="0dp"
-                android:layout_height="48dp"
-                android:background="@drawable/rounded_corners"
-                android:ems="10"
+                style="@style/DropDownField"
+                android:layout_marginTop="8dp"
                 android:entries="@array/variant"
-                android:inputType="textPersonName"
-                android:padding="4dp"
                 android:text="Name"
                 app:layout_constraintBottom_toBottomOf="@+id/tnrType"
                 app:layout_constraintEnd_toEndOf="@+id/textView13"
                 app:layout_constraintStart_toStartOf="@+id/textView13"
-                app:layout_constraintTop_toTopOf="@+id/tnrType" />
+                app:layout_constraintTop_toBottomOf="@+id/textView13" />
 
             <TextView
                 android:id="@+id/tnrInitialTimeText"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                style="@style/FieldLabel"
                 android:layout_marginTop="16dp"
                 android:text="Initial time: 0 minutes"
                 app:layout_constraintEnd_toEndOf="@+id/tnrType"
@@ -118,9 +111,7 @@
 
             <SeekBar
                 android:id="@+id/tnrInitialTime"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
+                style="@style/RangeInputField"
                 android:max="19"
                 app:layout_constraintEnd_toEndOf="@+id/tnrInitialTimeText"
                 app:layout_constraintStart_toStartOf="@+id/tnrInitialTimeText"
@@ -128,8 +119,7 @@
 
             <TextView
                 android:id="@+id/tnrIncrementText"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                style="@style/FieldLabel"
                 android:text="Increment: 0 seconds"
                 app:layout_constraintEnd_toEndOf="@+id/tnrVariant"
                 app:layout_constraintStart_toStartOf="@+id/tnrVariant"
@@ -137,9 +127,7 @@
 
             <SeekBar
                 android:id="@+id/tnrIncrement"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
+                style="@style/RangeInputField"
                 android:max="15"
                 app:layout_constraintEnd_toEndOf="@+id/tnrIncrementText"
                 app:layout_constraintStart_toStartOf="@+id/tnrIncrementText"
@@ -147,8 +135,7 @@
 
             <TextView
                 android:id="@+id/tnrDurationText"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                style="@style/FieldLabel"
                 android:layout_marginTop="16dp"
                 android:text="Duration: 20 minutes"
                 app:layout_constraintEnd_toEndOf="@+id/tnrIncrement"
@@ -157,9 +144,7 @@
 
             <SeekBar
                 android:id="@+id/tnrDuration"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
+                style="@style/RangeInputField"
                 android:max="27"
                 app:layout_constraintEnd_toEndOf="@+id/tnrDurationText"
                 app:layout_constraintStart_toStartOf="@+id/tnrDurationText"
@@ -167,35 +152,28 @@
 
             <EditText
                 android:id="@+id/tnrDescr"
-                android:layout_width="0dp"
+                style="@style/TextField"
                 android:layout_height="144dp"
-                android:layout_marginTop="8dp"
-                android:background="@drawable/rounded_corners"
-                android:ems="10"
                 android:gravity="start|top"
                 android:inputType="textMultiLine"
                 android:maxLength="1500"
-                android:padding="12dp"
-                android:textSize="16sp"
                 app:layout_constraintEnd_toEndOf="@+id/textView3"
                 app:layout_constraintStart_toStartOf="@+id/textView3"
                 app:layout_constraintTop_toBottomOf="@+id/textView3" />
 
             <TextView
                 android:id="@+id/textView3"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                style="@style/FieldLabel"
                 android:layout_marginTop="16dp"
                 android:text="Tournament description"
-                app:layout_constraintEnd_toEndOf="@+id/textView22"
+                app:layout_constraintEnd_toEndOf="@+id/tnrIncrement"
                 app:layout_constraintHorizontal_bias="0.0"
-                app:layout_constraintStart_toStartOf="@+id/textView22"
+                app:layout_constraintStart_toStartOf="@+id/tnrInitialTime"
                 app:layout_constraintTop_toBottomOf="@+id/tnrStartPos" />
 
             <TextView
                 android:id="@+id/tnrTeamsText"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                style="@style/FieldLabel"
                 android:layout_marginTop="16dp"
                 android:text="Only members of team"
                 app:layout_constraintEnd_toEndOf="@+id/tnrInitialTime"
@@ -204,19 +182,14 @@
 
             <Spinner
                 android:id="@+id/tnrTeams"
-                android:layout_width="0dp"
-                android:layout_height="48dp"
-                android:layout_marginTop="8dp"
-                android:background="@drawable/rounded_corners"
-                android:padding="4dp"
+                style="@style/DropDownField"
                 app:layout_constraintEnd_toEndOf="@+id/tnrTeamsText"
                 app:layout_constraintStart_toStartOf="@+id/tnrTeamsText"
                 app:layout_constraintTop_toBottomOf="@+id/tnrTeamsText" />
 
             <TextView
                 android:id="@+id/tnrPasswordText"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                style="@style/FieldLabel"
                 android:layout_marginTop="16dp"
                 android:text="Password"
                 app:layout_constraintEnd_toEndOf="@+id/tnrIncrement"
@@ -225,11 +198,7 @@
 
             <EditText
                 android:id="@+id/tnrPassword"
-                android:layout_width="0dp"
-                android:layout_height="48dp"
-                android:layout_marginTop="8dp"
-                android:background="@drawable/rounded_corners"
-                android:ems="10"
+                style="@style/TextField"
                 android:inputType="textPassword"
                 android:maxLength="20"
                 android:padding="12dp"
@@ -239,8 +208,7 @@
 
             <TextView
                 android:id="@+id/tnrRoundsText"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                style="@style/FieldLabel"
                 android:layout_marginTop="16dp"
                 android:text="Number of rounds: 8"
                 android:visibility="gone"
@@ -251,9 +219,7 @@
 
             <SeekBar
                 android:id="@+id/tnrRounds"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
+                style="@style/RangeInputField"
                 android:max="97"
                 android:progress="5"
                 android:visibility="gone"
@@ -264,8 +230,7 @@
 
             <TextView
                 android:id="@+id/tnrBreaksText"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                style="@style/FieldLabel"
                 android:text="Round breaks: auto"
                 android:visibility="gone"
                 app:layout_constraintEnd_toEndOf="@+id/tnrIncrement"
@@ -275,9 +240,7 @@
 
             <SeekBar
                 android:id="@+id/tnrBreaks"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
+                style="@style/RangeInputField"
                 android:max="17"
                 android:visibility="gone"
                 app:layout_constraintEnd_toEndOf="@+id/tnrBreaksText"
@@ -287,8 +250,7 @@
 
             <TextView
                 android:id="@+id/textView15"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                style="@style/FieldLabel"
                 android:layout_marginTop="16dp"
                 android:text="Start time"
                 app:layout_constraintEnd_toEndOf="@+id/tnrRatedGames"
@@ -297,12 +259,7 @@
 
             <Spinner
                 android:id="@+id/tnrStartTimeHrs"
-                android:layout_width="60dp"
-                android:layout_height="48dp"
-                android:layout_marginTop="8dp"
-                android:background="@drawable/rounded_corners"
-                android:gravity="center"
-                android:padding="4dp"
+                style="@style/TimeDropDownField"
                 app:layout_constraintStart_toStartOf="@+id/textView15"
                 app:layout_constraintTop_toBottomOf="@+id/textView15" />
 
@@ -313,7 +270,7 @@
                 android:layout_marginStart="8dp"
                 android:gravity="center"
                 android:text=":"
-                android:textColor="#000"
+                android:textColor="?attr/textColor"
                 android:textSize="16sp"
                 app:layout_constraintBottom_toBottomOf="@+id/tnrStartTimeHrs"
                 app:layout_constraintStart_toEndOf="@+id/tnrStartTimeHrs"
@@ -321,48 +278,34 @@
 
             <Spinner
                 android:id="@+id/tnrStartTimeMins"
-                android:layout_width="60dp"
-                android:layout_height="48dp"
+                style="@style/TimeDropDownField"
                 android:layout_marginStart="8dp"
-                android:background="@drawable/rounded_corners"
-                android:gravity="center"
-                android:padding="4dp"
                 app:layout_constraintBottom_toBottomOf="@+id/textView14"
                 app:layout_constraintStart_toEndOf="@+id/textView14"
-                app:layout_constraintTop_toTopOf="@+id/textView14" />
+                app:layout_constraintTop_toBottomOf="@+id/textView15" />
 
             <Switch
                 android:id="@+id/tnrRated"
-                android:layout_width="0dp"
-                android:layout_height="48dp"
+                style="@style/SwitchField"
                 android:layout_marginTop="16dp"
                 android:checked="true"
                 android:text="Rated"
-                android:textSize="16sp"
                 app:layout_constraintEnd_toEndOf="@+id/tnrType"
                 app:layout_constraintStart_toStartOf="@+id/tnrName"
                 app:layout_constraintTop_toBottomOf="@+id/tnrType" />
 
             <EditText
                 android:id="@+id/tnrDisplayName"
-                android:layout_width="0dp"
-                android:layout_height="48dp"
-                android:layout_marginTop="8dp"
-                android:background="@drawable/rounded_corners"
-                android:ems="10"
+                style="@style/TextField"
                 android:hint="Display name"
-                android:inputType="textPersonName"
                 android:maxLength="30"
-                android:padding="12dp"
-                android:textSize="16sp"
                 app:layout_constraintEnd_toEndOf="@+id/textView17"
                 app:layout_constraintStart_toStartOf="@+id/textView17"
                 app:layout_constraintTop_toBottomOf="@+id/textView17" />
 
             <TextView
                 android:id="@+id/textView17"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                style="@style/FieldLabel"
                 android:layout_marginTop="16dp"
                 android:text="Display name"
                 app:layout_constraintEnd_toEndOf="@+id/tnrName"
@@ -370,9 +313,8 @@
                 app:layout_constraintTop_toBottomOf="@+id/tnrName" />
 
             <TextView
-                android:id="@+id/textView22"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:id="@+id/tnrStartPosText"
+                style="@style/FieldLabel"
                 android:layout_marginTop="16dp"
                 android:text="Starting position"
                 app:layout_constraintEnd_toEndOf="@+id/tnrIncrement"
@@ -381,23 +323,15 @@
 
             <EditText
                 android:id="@+id/tnrStartPos"
-                android:layout_width="0dp"
-                android:layout_height="48dp"
-                android:layout_marginTop="8dp"
-                android:background="@drawable/rounded_corners"
-                android:ems="10"
+                style="@style/TextField"
                 android:hint="Enter FEN"
-                android:inputType="textPersonName"
-                android:padding="12dp"
-                android:textSize="16sp"
-                app:layout_constraintEnd_toEndOf="@+id/textView22"
-                app:layout_constraintStart_toStartOf="@+id/textView22"
-                app:layout_constraintTop_toBottomOf="@+id/textView22" />
+                app:layout_constraintEnd_toEndOf="@+id/tnrStartPosText"
+                app:layout_constraintStart_toStartOf="@+id/tnrStartPosText"
+                app:layout_constraintTop_toBottomOf="@+id/tnrStartPosText" />
 
             <TextView
                 android:id="@+id/tnrMinRatingText"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                style="@style/FieldLabel"
                 android:layout_marginTop="16dp"
                 android:text="Minimum rating: none"
                 app:layout_constraintEnd_toEndOf="@+id/tnrInitialTime"
@@ -406,9 +340,7 @@
 
             <SeekBar
                 android:id="@+id/tnrMinRating"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
+                style="@style/RangeInputField"
                 android:max="17"
                 app:layout_constraintEnd_toEndOf="@+id/tnrMinRatingText"
                 app:layout_constraintStart_toStartOf="@+id/tnrMinRatingText"
@@ -416,8 +348,7 @@
 
             <TextView
                 android:id="@+id/tnrMaxRatingText"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                style="@style/FieldLabel"
                 android:text="Maximum rating: none"
                 app:layout_constraintEnd_toEndOf="@+id/tnrIncrement"
                 app:layout_constraintStart_toStartOf="@+id/tnrIncrement"
@@ -425,9 +356,7 @@
 
             <SeekBar
                 android:id="@+id/tnrMaxRating"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
+                style="@style/RangeInputField"
                 android:max="15"
                 app:layout_constraintEnd_toEndOf="@+id/tnrMaxRatingText"
                 app:layout_constraintStart_toStartOf="@+id/tnrMaxRatingText"
@@ -435,19 +364,17 @@
 
             <TextView
                 android:id="@+id/tnrRatedGamesText"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                style="@style/FieldLabel"
                 android:layout_marginTop="16dp"
                 android:text="Minimum rated games: none"
+                android:textColor="?attr/textColorLight"
                 app:layout_constraintEnd_toEndOf="@+id/tnrMaxRating"
                 app:layout_constraintStart_toStartOf="@+id/tnrMinRating"
                 app:layout_constraintTop_toBottomOf="@+id/tnrMinRating" />
 
             <SeekBar
                 android:id="@+id/tnrRatedGames"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
+                style="@style/RangeInputField"
                 android:max="11"
                 app:layout_constraintEnd_toEndOf="@+id/tnrRatedGamesText"
                 app:layout_constraintStart_toStartOf="@+id/tnrRatedGamesText"
@@ -455,34 +382,29 @@
 
             <Switch
                 android:id="@+id/tnrBerserk"
-                android:layout_width="0dp"
-                android:layout_height="48dp"
+                style="@style/SwitchField"
+                android:layout_marginTop="16dp"
                 android:checked="true"
                 android:text="Allow berserk"
-                android:textSize="16sp"
                 app:layout_constraintEnd_toEndOf="@+id/tnrMinRating"
                 app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintStart_toStartOf="@+id/tnrMinRating"
-                app:layout_constraintTop_toBottomOf="@+id/textView29" />
+                app:layout_constraintTop_toBottomOf="@+id/tnrRatedGames" />
 
             <Switch
                 android:id="@+id/tnrStreaks"
-                android:layout_width="0dp"
-                android:layout_height="48dp"
+                style="@style/SwitchField"
                 android:checked="true"
                 android:text="Arena streaks"
-                android:textSize="16sp"
                 app:layout_constraintEnd_toEndOf="@+id/tnrMaxRating"
                 app:layout_constraintStart_toStartOf="@+id/tnrMaxRating"
                 app:layout_constraintTop_toTopOf="@+id/tnrBerserk" />
 
             <Switch
                 android:id="@+id/tnrChatroom"
-                android:layout_width="0dp"
-                android:layout_height="48dp"
+                style="@style/SwitchField"
                 android:checked="true"
                 android:text="Chatroom"
-                android:textSize="16sp"
                 app:layout_constraintEnd_toEndOf="@+id/tnrMinRating"
                 app:layout_constraintStart_toStartOf="@+id/tnrMinRating"
                 app:layout_constraintTop_toBottomOf="@+id/tnrBerserk" />
@@ -502,17 +424,8 @@
                 tools:visibility="visible" />
 
             <TextView
-                android:id="@+id/textView29"
-                android:layout_width="0dp"
-                android:layout_height="16dp"
-                app:layout_constraintEnd_toEndOf="@+id/tnrRatedGames"
-                app:layout_constraintStart_toStartOf="@+id/tnrRatedGames"
-                app:layout_constraintTop_toBottomOf="@+id/tnrRatedGames" />
-
-            <TextView
                 android:id="@+id/tnrForbiddenPairingsText"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                style="@style/FieldLabel"
                 android:layout_marginTop="16dp"
                 android:text="Forbidden pairings"
                 android:visibility="gone"
@@ -523,15 +436,11 @@
 
             <EditText
                 android:id="@+id/tnrForbiddenPairings"
-                android:layout_width="0dp"
+                style="@style/TextField"
                 android:layout_height="144dp"
-                android:layout_marginTop="8dp"
-                android:background="@drawable/rounded_corners"
-                android:ems="10"
                 android:gravity="start|top"
                 android:hint="Enter two usernames per line, separated by a space"
                 android:inputType="textMultiLine"
-                android:padding="12dp"
                 android:visibility="gone"
                 app:layout_constraintEnd_toEndOf="@+id/tnrForbiddenPairingsText"
                 app:layout_constraintStart_toStartOf="@+id/tnrForbiddenPairingsText"
@@ -540,8 +449,7 @@
 
             <TextView
                 android:id="@+id/tnrTeamBattleTeamsText"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                style="@style/FieldLabel"
                 android:layout_marginTop="16dp"
                 android:text="Teams"
                 app:layout_constraintEnd_toEndOf="@+id/tnrDescr"
@@ -550,15 +458,11 @@
 
             <EditText
                 android:id="@+id/tnrTeamBattleTeams"
-                android:layout_width="0dp"
+                style="@style/TextField"
                 android:layout_height="144dp"
-                android:layout_marginTop="8dp"
-                android:background="@drawable/rounded_corners"
-                android:ems="10"
                 android:gravity="start|top"
-                android:hint="Enter team IDs, separate with commas"
+                android:hint="Enter team IDs separated with commas"
                 android:inputType="textMultiLine"
-                android:padding="12dp"
                 app:layout_constraintEnd_toEndOf="@+id/tnrTeamBattleTeamsText"
                 app:layout_constraintStart_toStartOf="@+id/tnrTeamBattleTeamsText"
                 app:layout_constraintTop_toBottomOf="@+id/tnrTeamBattleTeamsText" />
@@ -569,15 +473,14 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
                 android:text="Team leaders: 5"
+                android:textColor="?attr/textColorLight"
                 app:layout_constraintEnd_toEndOf="@+id/tnrTeamBattleTeams"
                 app:layout_constraintStart_toStartOf="@+id/tnrTeamBattleTeams"
                 app:layout_constraintTop_toBottomOf="@+id/tnrTeamBattleTeams" />
 
             <SeekBar
                 android:id="@+id/tnrLeaders"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
+                style="@style/RangeInputField"
                 android:max="19"
                 android:progress="4"
                 app:layout_constraintEnd_toEndOf="@+id/tnrLeadersText"
@@ -586,16 +489,15 @@
 
             <TextView
                 android:id="@+id/textView11"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                style="@style/FieldLabel"
                 android:layout_marginTop="16dp"
                 android:text="Schedule on"
-                android:textSize="14sp"
                 app:layout_constraintStart_toStartOf="@+id/tnrStartTimeHrs"
                 app:layout_constraintTop_toBottomOf="@+id/tnrStartTimeHrs" />
 
             <CheckBox
                 android:id="@+id/cb1"
+                style="@style/CheckBoxField"
                 android:layout_width="32dp"
                 android:layout_height="32dp"
                 android:layout_marginTop="4dp"
@@ -606,6 +508,7 @@
 
             <CheckBox
                 android:id="@+id/cb2"
+                style="@style/CheckBoxField"
                 android:layout_width="32dp"
                 android:layout_height="32dp"
                 android:checked="true"
@@ -615,6 +518,7 @@
 
             <CheckBox
                 android:id="@+id/cb3"
+                style="@style/CheckBoxField"
                 android:layout_width="32dp"
                 android:layout_height="32dp"
                 android:checked="true"
@@ -624,6 +528,7 @@
 
             <CheckBox
                 android:id="@+id/cb4"
+                style="@style/CheckBoxField"
                 android:layout_width="32dp"
                 android:layout_height="32dp"
                 android:checked="true"
@@ -633,6 +538,7 @@
 
             <CheckBox
                 android:id="@+id/cb5"
+                style="@style/CheckBoxField"
                 android:layout_width="32dp"
                 android:layout_height="32dp"
                 android:checked="true"
@@ -642,6 +548,7 @@
 
             <CheckBox
                 android:id="@+id/cb6"
+                style="@style/CheckBoxField"
                 android:layout_width="32dp"
                 android:layout_height="32dp"
                 android:checked="true"
@@ -651,6 +558,7 @@
 
             <CheckBox
                 android:id="@+id/cb7"
+                style="@style/CheckBoxField"
                 android:layout_width="32dp"
                 android:layout_height="32dp"
                 android:checked="true"
@@ -660,11 +568,8 @@
 
             <TextView
                 android:id="@+id/textView2"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                style="@style/DayOfWeekLabel"
                 android:text="S"
-                android:textAlignment="center"
-                android:textStyle="bold"
                 app:layout_constraintEnd_toEndOf="@+id/cb1"
                 app:layout_constraintStart_toStartOf="@+id/cb1"
                 app:layout_constraintTop_toBottomOf="@+id/cb1"
@@ -672,11 +577,8 @@
 
             <TextView
                 android:id="@+id/textView4"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                style="@style/DayOfWeekLabel"
                 android:text="M"
-                android:textAlignment="center"
-                android:textStyle="bold"
                 app:layout_constraintEnd_toEndOf="@+id/cb2"
                 app:layout_constraintStart_toStartOf="@+id/cb2"
                 app:layout_constraintTop_toBottomOf="@+id/cb2"
@@ -684,11 +586,8 @@
 
             <TextView
                 android:id="@+id/textView6"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                style="@style/DayOfWeekLabel"
                 android:text="T"
-                android:textAlignment="center"
-                android:textStyle="bold"
                 app:layout_constraintEnd_toEndOf="@+id/cb3"
                 app:layout_constraintStart_toStartOf="@+id/cb3"
                 app:layout_constraintTop_toBottomOf="@+id/cb3"
@@ -696,11 +595,8 @@
 
             <TextView
                 android:id="@+id/textView7"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                style="@style/DayOfWeekLabel"
                 android:text="W"
-                android:textAlignment="center"
-                android:textStyle="bold"
                 app:layout_constraintEnd_toEndOf="@+id/cb4"
                 app:layout_constraintStart_toStartOf="@+id/cb4"
                 app:layout_constraintTop_toBottomOf="@+id/cb4"
@@ -708,11 +604,8 @@
 
             <TextView
                 android:id="@+id/textView8"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                style="@style/DayOfWeekLabel"
                 android:text="T"
-                android:textAlignment="center"
-                android:textStyle="bold"
                 app:layout_constraintEnd_toEndOf="@+id/cb5"
                 app:layout_constraintStart_toStartOf="@+id/cb5"
                 app:layout_constraintTop_toBottomOf="@+id/cb5"
@@ -720,11 +613,8 @@
 
             <TextView
                 android:id="@+id/textView9"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                style="@style/DayOfWeekLabel"
                 android:text="F"
-                android:textAlignment="center"
-                android:textStyle="bold"
                 app:layout_constraintEnd_toEndOf="@+id/cb6"
                 app:layout_constraintStart_toStartOf="@+id/cb6"
                 app:layout_constraintTop_toBottomOf="@+id/cb6"
@@ -732,11 +622,8 @@
 
             <TextView
                 android:id="@+id/textView10"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                style="@style/DayOfWeekLabel"
                 android:text="S"
-                android:textAlignment="center"
-                android:textStyle="bold"
                 app:layout_constraintEnd_toEndOf="@+id/cb7"
                 app:layout_constraintStart_toEndOf="@+id/cb6"
                 app:layout_constraintTop_toBottomOf="@+id/cb7"
@@ -771,8 +658,7 @@
 
             <TextView
                 android:id="@+id/tnrChatAccessText"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                style="@style/FieldLabel"
                 android:layout_marginTop="16dp"
                 android:text="Allow chat access to"
                 app:layout_constraintEnd_toEndOf="@+id/tnrRatedGames"
@@ -781,12 +667,8 @@
 
             <Spinner
                 android:id="@+id/tnrChatAccess"
-                android:layout_width="0dp"
-                android:layout_height="48dp"
-                android:layout_marginTop="8dp"
-                android:background="@drawable/rounded_corners"
+                style="@style/DropDownField"
                 android:entries="@array/chat_access"
-                android:padding="4dp"
                 app:layout_constraintEnd_toEndOf="@+id/tnrChatAccessText"
                 app:layout_constraintStart_toStartOf="@+id/tnrChatAccessText"
                 app:layout_constraintTop_toBottomOf="@+id/tnrChatAccessText" />
@@ -800,7 +682,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        android:layout_marginTop="50dp"
+        android:layout_marginTop="90dp"
         android:visibility="gone"
         app:cardCornerRadius="24dp"
         tools:visibility="visible">

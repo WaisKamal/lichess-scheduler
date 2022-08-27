@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <attr name="primaryColor" />
+    <attr name="bgColor" />
+    <attr name="objectBackgroundColor" />
+    <attr name="textColor" />
+    <attr name="textColorLight" />
+    <attr name="textColorColored" />
+
+    <attr name="toolbarColor" />
+    <attr name="spinnerBackground" />
+    <attr name="spinnerMenuBackground" />
+    <attr name="seekbarBackground" />
+    <attr name="iconColor" />
+    <attr name="iconColorDark" />
+    <attr name="floatingActionButtonColor" />
+    <attr name="overlayColorLight" />
+</resources>

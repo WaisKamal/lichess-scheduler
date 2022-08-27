@@ -11,11 +11,12 @@
         <entry key="..\:/AndroidApps/LichessScheduler/android/app/src/main/res/drawable/ic_logout.xml" value="0.2115" />
         <entry key="..\:/AndroidApps/LichessScheduler/android/app/src/main/res/drawable/ic_players.xml" value="0.2115" />
         <entry key="..\:/AndroidApps/LichessScheduler/android/app/src/main/res/drawable/ic_remove.xml" value="0.2115" />
+        <entry key="..\:/AndroidApps/LichessScheduler/android/app/src/main/res/drawable/ic_save.xml" value="0.2115" />
         <entry key="..\:/AndroidApps/LichessScheduler/android/app/src/main/res/drawable/ic_schedule.xml" value="0.2115" />
         <entry key="..\:/AndroidApps/LichessScheduler/android/app/src/main/res/drawable/ic_settings.xml" value="0.2115" />
         <entry key="..\:/AndroidApps/LichessScheduler/android/app/src/main/res/drawable/ic_timer.xml" value="0.2115" />
         <entry key="..\:/AndroidApps/LichessScheduler/android/app/src/main/res/drawable/rounded_corners.xml" value="0.2115" />
-        <entry key="..\:/AndroidApps/LichessScheduler/android/app/src/main/res/layout/activity_edit.xml" value="0.33" />
+        <entry key="..\:/AndroidApps/LichessScheduler/android/app/src/main/res/layout/activity_edit.xml" value="0.22197055492638731" />
         <entry key="..\:/AndroidApps/LichessScheduler/android/app/src/main/res/layout/activity_login.xml" value="0.20416666666666666" />
         <entry key="..\:/AndroidApps/LichessScheduler/android/app/src/main/res/layout/activity_main.xml" value="0.33" />
         <entry key="..\:/AndroidApps/LichessScheduler/android/app/src/main/res/layout/activity_notify.xml" value="0.20416666666666666" />
@@ -24,7 +25,8 @@
         <entry key="..\:/AndroidApps/LichessScheduler/android/app/src/main/res/layout/activity_settings.xml" value="0.33" />
         <entry key="..\:/AndroidApps/LichessScheduler/android/app/src/main/res/layout/activity_splash.xml" value="0.20416666666666666" />
         <entry key="..\:/AndroidApps/LichessScheduler/android/app/src/main/res/layout/centered_spinner.xml" value="0.20416666666666666" />
-        <entry key="..\:/AndroidApps/LichessScheduler/android/app/src/main/res/layout/player_dialog.xml" value="0.20416666666666666" />
+        <entry key="..\:/AndroidApps/LichessScheduler/android/app/src/main/res/layout/normal_spinner.xml" value="0.20416666666666666" />
+        <entry key="..\:/AndroidApps/LichessScheduler/android/app/src/main/res/layout/player_dialog.xml" value="0.25" />
         <entry key="..\:/AndroidApps/LichessScheduler/android/app/src/main/res/layout/player_item.xml" value="0.20416666666666666" />
         <entry key="..\:/AndroidApps/LichessScheduler/android/app/src/main/res/layout/tnr_item.xml" value="0.33" />
         <entry key="..\:/AndroidApps/LichessScheduler/app/src/main/res/drawable/ic_add.xml" value="0.21614583333333334" />

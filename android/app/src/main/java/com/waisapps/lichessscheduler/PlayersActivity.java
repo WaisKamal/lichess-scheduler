@@ -16,6 +16,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.Toolbar;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
@@ -27,7 +28,7 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.util.ArrayList;
 
-public class PlayersActivity extends AppCompatActivity implements View.OnClickListener,
+public class PlayersActivity extends BaseActivity implements View.OnClickListener,
         MenuItem.OnMenuItemClickListener, PlayerPromptDialog.OnButtonClick {
 
     private MenuItem menuSave, menuClear;
@@ -56,6 +57,7 @@ public class PlayersActivity extends AppCompatActivity implements View.OnClickLi
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_players);
+        setSupportActionBar(findViewById(R.id.toolbar));
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         // Initialize current token

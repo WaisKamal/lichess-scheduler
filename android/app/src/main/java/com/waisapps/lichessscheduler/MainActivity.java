@@ -17,7 +17,7 @@ import android.view.View;
 
 import java.util.concurrent.TimeUnit;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener {
+public class MainActivity extends BaseActivity implements View.OnClickListener {
 
     private Toolbar toolbar;
     private ConstraintLayout btnNew;

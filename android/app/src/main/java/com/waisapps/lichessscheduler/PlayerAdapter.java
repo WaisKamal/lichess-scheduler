@@ -68,7 +68,7 @@ public class PlayerAdapter extends RecyclerView.Adapter<PlayerAdapter.ViewHolder
                     String initialName = name.getText().toString();
                     dialog = new PlayerPromptDialog(context, getAdapterPosition(), initialId, initialName);
                     dialog.setOnClickListener(PlayerAdapter.this);
-                    dialog.setTitle("Edit player data");
+                    dialog.setTitle("Edit player");
                     dialog.setId(initialId);
                     dialog.setName(initialName);
                     dialog.show();
@@ -100,7 +100,7 @@ public class PlayerAdapter extends RecyclerView.Adapter<PlayerAdapter.ViewHolder
     }
 
     public boolean validateName(String name) {
-        if (name.replaceAll("\\s", "").length() < 2) {
+        if (name.replaceAll("\\s", "").length() == 0) {
             Toast.makeText(context, "Name cannot be empty", Toast.LENGTH_SHORT).show();
             return false;
         } else if (name.length() < 2) {

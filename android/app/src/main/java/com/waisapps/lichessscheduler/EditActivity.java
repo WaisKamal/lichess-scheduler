@@ -23,8 +23,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 
 import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.android.material.snackbar.Snackbar;
@@ -38,20 +36,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class EditActivity extends AppCompatActivity implements MenuItem.OnMenuItemClickListener,
+public class EditActivity extends BaseActivity implements MenuItem.OnMenuItemClickListener,
         SeekBar.OnSeekBarChangeListener {
-
-    private static final int PERMISSION_REQUEST_CODE = 5;
-
     // Current access token and username
     String token;
     String username;
 
     // Current tournament id
     String currentTnrId = "";
-
-    // The current team id
-    String currentTeamId = "";
 
     // Request queue
     RequestQueue requestQueue;
@@ -74,7 +66,7 @@ public class EditActivity extends AppCompatActivity implements MenuItem.OnMenuIt
     // Fields
     private CardView startLoader;
     private TextView tnrInitialTimeText, tnrIncrementText, tnrRoundsText, tnrBreaksText,
-            tnrDurationText, tnrTeamsText, tnrTeamBattleTeamsText, tnrLeadersText,
+            tnrDurationText, tnrStartPosText, tnrTeamsText, tnrTeamBattleTeamsText, tnrLeadersText,
             tnrMinRatingText, tnrMaxRatingText, tnrRatedGamesText, tnrForbiddenPairingsText,
             tnrChatAccessText;
     private Switch tnrRated, tnrBerserk, tnrStreaks, tnrChatroom;
@@ -107,6 +99,7 @@ public class EditActivity extends AppCompatActivity implements MenuItem.OnMenuIt
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit);
+        setSupportActionBar(findViewById(R.id.toolbar));
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         // Initialize request queue
@@ -131,6 +124,7 @@ public class EditActivity extends AppCompatActivity implements MenuItem.OnMenuIt
         // Initialize fields and labels
         initializeFields();
         initializeLabels();
+        populateSpinners();
 
         // Initialize checkboxes array
         for (int i = 0; i < 7; i++) {
@@ -139,20 +133,10 @@ public class EditActivity extends AppCompatActivity implements MenuItem.OnMenuIt
         }
 
         // Initialize seekbar options
-        initialTimeStops = Arrays.asList(getResources().getStringArray(R.array.initial_time));
-        incrementStops = Arrays.asList(getResources().getStringArray(R.array.increment));
-        breaksStops = Arrays.asList(getResources().getStringArray(R.array.time_between_rounds));
-        durationStops = Arrays.asList(getResources().getStringArray(R.array.duration));
-        ratedGamesStops = Arrays.asList(getResources().getStringArray(R.array.rated_games));
+        initializeSeekBarOptions();
 
         // Initialize seekbar and spinner values
-        tnrTypeValues = getResources().getStringArray(R.array.tournament_type_values);
-        tnrVariantValues = getResources().getStringArray(R.array.variant_values);
-        tnrInitialTimeValues = getResources().getIntArray(R.array.initial_time_values);
-        tnrIncrementValues = getResources().getIntArray(R.array.increment_values);
-        tnrDurationValues = getResources().getIntArray(R.array.duration_values);
-        tnrBreaksValues = getResources().getIntArray(R.array.time_between_rounds_values);
-        tnrRatedGamesValues = getResources().getIntArray(R.array.rated_games_values);
+        initializeSeekBarAndSpinnerValues();
 
         // Add "Not specified" to teams spinner
         // The corresponding team ID is the empty string
@@ -160,7 +144,7 @@ public class EditActivity extends AppCompatActivity implements MenuItem.OnMenuIt
         teamNames.add("Not specified");
 
         ArrayAdapter<String> tnrTeamsAdapter = new ArrayAdapter<>(EditActivity.this,
-                R.layout.support_simple_spinner_dropdown_item, teamNames);
+                R.layout.normal_spinner, teamNames);
         tnrTeams.setAdapter(tnrTeamsAdapter);
 
         ArrayAdapter<CharSequence> tnrStartTimeHrsAdapter = ArrayAdapter.createFromResource(this,
@@ -188,8 +172,18 @@ public class EditActivity extends AppCompatActivity implements MenuItem.OnMenuIt
             }
 
             @Override
-            public void onNothingSelected(AdapterView<?> parent) {
+            public void onNothingSelected(AdapterView<?> parent) {}
+        });
+
+        tnrVariant.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                tnrStartPosText.setVisibility(position == 0 ? View.VISIBLE : View.GONE);
+                tnrStartPos.setVisibility(position == 0 ? View.VISIBLE : View.GONE);
             }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {}
         });
 
         btnSave.setOnClickListener(new View.OnClickListener() {
@@ -203,7 +197,7 @@ public class EditActivity extends AppCompatActivity implements MenuItem.OnMenuIt
             }
         });
 
-        // Check whether this activity was called by ScheduleActivity
+        // Check whether this activity was invoked by ScheduleActivity
         Intent intent = getIntent();
         if (intent.hasExtra(IntentConstants.ID)) {
             currentTnrId = intent.getStringExtra(IntentConstants.ID);
@@ -466,7 +460,7 @@ public class EditActivity extends AppCompatActivity implements MenuItem.OnMenuIt
             }
         }
 
-        if (!tnrStartPos.getText().toString().isEmpty()) {
+        if (!tnrStartPos.getText().toString().isEmpty() && tnrVariant.getSelectedItemPosition() != 1) {
             tnr.put("startPos", tnrStartPos.getText().toString());
         }
 
@@ -559,8 +553,9 @@ public class EditActivity extends AppCompatActivity implements MenuItem.OnMenuIt
         if (!validator.validateTournamentName(tnrName.getText().toString())) return;
         if (!validator.validateDisplayName(tnrDisplayName.getText().toString())) return;
         if (!validator.validateInitialTime(tnrInitialTime.getProgress(), tnrIncrement.getProgress())) return;
-        if (tnrType.getSelectedItemPosition() == 0 && !validator.validateDuration(tnrInitialTime.getProgress(), tnrDuration.getProgress()))
-            return;
+        if ((tnrType.getSelectedItemPosition() == 0 || tnrType.getSelectedItemPosition() == 2)
+                && !validator.validateDuration(tnrInitialTime.getProgress(), tnrIncrement.getProgress(),
+                        tnrDuration.getProgress())) return;
         if (tnrVariant.getSelectedItemPosition() == 0 && !validator.validateFEN(tnrStartPos.getText().toString())) return;
         if (!validator.validateTeam(tnrType.getSelectedItemPosition(), tnrTeams.getSelectedItemPosition()))
             return;
@@ -649,7 +644,7 @@ public class EditActivity extends AppCompatActivity implements MenuItem.OnMenuIt
                     teamIds = newTeamIds;
                     teamNames = newTeamNames;
                     ArrayAdapter<String> adapter = new ArrayAdapter<>(EditActivity.this,
-                            R.layout.support_simple_spinner_dropdown_item, teamNames);
+                            R.layout.normal_spinner, teamNames);
                     tnrTeams.setAdapter(adapter);
                     Intent intent = getIntent();
                     if (intent.hasExtra(IntentConstants.TEAM)) {
@@ -720,6 +715,7 @@ public class EditActivity extends AppCompatActivity implements MenuItem.OnMenuIt
         tnrRoundsText = findViewById(R.id.tnrRoundsText);
         tnrBreaksText = findViewById(R.id.tnrBreaksText);
         tnrDurationText = findViewById(R.id.tnrDurationText);
+        tnrStartPosText = findViewById(R.id.tnrStartPosText);
         tnrTeamsText = findViewById(R.id.tnrTeamsText);
         tnrTeamBattleTeamsText = findViewById(R.id.tnrTeamBattleTeamsText);
         tnrLeadersText = findViewById(R.id.tnrLeadersText);
@@ -762,6 +758,18 @@ public class EditActivity extends AppCompatActivity implements MenuItem.OnMenuIt
         btnSave = findViewById(R.id.btnSave);
         loader = findViewById(R.id.saveLoader);
         startLoader = findViewById(R.id.loader);
+    }
+
+    private void populateSpinners() {
+        int[] spinnerIds = {R.id.tnrType, R.id.tnrVariant, R.id.tnrChatAccess};
+        int[] entriesIds = {R.array.tournament_type, R.array.variant, R.array.chat_access};
+        for (int i = 0; i < spinnerIds.length; i++) {
+            Spinner spinner = findViewById(spinnerIds[i]);
+            ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
+                    entriesIds[i], R.layout.normal_spinner);
+            adapter.setDropDownViewResource(R.layout.normal_spinner);
+            spinner.setAdapter(adapter);
+        }
     }
 
     private void toggleFieldsBasedOnTournamentType(int tnrType) {
@@ -824,5 +832,23 @@ public class EditActivity extends AppCompatActivity implements MenuItem.OnMenuIt
             tnrForbiddenPairingsText.setVisibility(View.GONE);
             tnrForbiddenPairings.setVisibility(View.GONE);
         }
+    }
+
+    private void initializeSeekBarOptions() {
+        initialTimeStops = Arrays.asList(getResources().getStringArray(R.array.initial_time));
+        incrementStops = Arrays.asList(getResources().getStringArray(R.array.increment));
+        breaksStops = Arrays.asList(getResources().getStringArray(R.array.time_between_rounds));
+        durationStops = Arrays.asList(getResources().getStringArray(R.array.duration));
+        ratedGamesStops = Arrays.asList(getResources().getStringArray(R.array.rated_games));
+    }
+
+    private void initializeSeekBarAndSpinnerValues() {
+        tnrTypeValues = getResources().getStringArray(R.array.tournament_type_values);
+        tnrVariantValues = getResources().getStringArray(R.array.variant_values);
+        tnrInitialTimeValues = getResources().getIntArray(R.array.initial_time_values);
+        tnrIncrementValues = getResources().getIntArray(R.array.increment_values);
+        tnrDurationValues = getResources().getIntArray(R.array.duration_values);
+        tnrBreaksValues = getResources().getIntArray(R.array.time_between_rounds_values);
+        tnrRatedGamesValues = getResources().getIntArray(R.array.rated_games_values);
     }
 }

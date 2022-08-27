@@ -337,7 +337,12 @@
         <item>150</item>
         <item>200</item>
     </integer-array>
-    <string-array name="settings_scheduling_style">
+    <string-array name="settings_theme">
+        <item>Device default</item>
+        <item>Light</item>
+        <item>Dark</item>
+    </string-array>
+    <string-array name="settings_scheduling_mode">
         <item>Several days in advance</item>
         <item>On the same day</item>
     </string-array>

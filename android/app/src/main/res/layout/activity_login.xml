@@ -5,7 +5,7 @@
     android:id="@+id/container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/backgroundColor"
+    android:background="?attr/bgColor"
     android:padding="50dp"
     tools:context=".LoginActivity">
 
@@ -27,7 +27,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="50dp"
         android:text="Token"
-        android:textColor="@color/textColor"
+        android:textColor="?attr/textColor"
         app:layout_constraintBottom_toTopOf="@+id/tokenInput"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
@@ -57,7 +57,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:text="Remember token"
-        android:textColor="@color/textColor"
+        android:textColor="?attr/textColor"
         app:layout_constraintBottom_toTopOf="@+id/btnLogin"
         app:layout_constraintEnd_toEndOf="@+id/tokenInput"
         app:layout_constraintHorizontal_bias="0.5"

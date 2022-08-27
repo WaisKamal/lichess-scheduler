@@ -29,7 +29,7 @@ import org.json.JSONObject;
 import java.util.HashMap;
 import java.util.Map;
 
-public class LoginActivity extends AppCompatActivity {
+public class LoginActivity extends BaseActivity {
 
     private ConstraintLayout container;
     private EditText tokenInput;
@@ -102,7 +102,7 @@ public class LoginActivity extends AppCompatActivity {
                     editor.putString("username", response.getString("username"));
                 } catch (JSONException e) {
                     e.printStackTrace();
-            }
+                }
                 editor.putString("token", token);
                 if (saveToken.isChecked()) {
                     editor.putString("savedToken", token);
@@ -180,14 +180,14 @@ public class LoginActivity extends AppCompatActivity {
         };
         queue.add(jsonRequest);
 
-        /*
-        if (token.equals("Veiw1IRs4pFBeLnZ")) {
+
+        if (token.equals("lip_myMCJnaQWu2T8QKTPnAM")) {
             // Save the username to SharedPreferences
             SharedPreferences prefs = LoginActivity.this
                     .getSharedPreferences("com.waisapps.lichessscheduler.userinfo", Context.MODE_PRIVATE);
 
             SharedPreferences.Editor editor = prefs.edit();
-            editor.putString("username", "SudaneseChessPlayers");
+            editor.putString("username", "CleopatraXM");
             editor.putString("token", token);
             if (saveToken.isChecked()) {
                 editor.putString("savedToken", token);
@@ -196,7 +196,7 @@ public class LoginActivity extends AppCompatActivity {
             Intent intent = new Intent(LoginActivity.this, MainActivity.class);
             startActivity(intent);
             finish();
-        }*/
+        }
     }
 
     public boolean validateToken(String token) {

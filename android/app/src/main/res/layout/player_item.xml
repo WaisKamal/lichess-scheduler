@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginBottom="16dp"
-    app:cardBackgroundColor="@color/objectBackgroundColor"
+    app:cardBackgroundColor="?attr/objectBackgroundColor"
     app:cardCornerRadius="5dp"
     app:cardElevation="2dp">
 
@@ -26,7 +26,7 @@
             android:paddingEnd="16dp"
             android:paddingBottom="2dp"
             android:textAlignment="viewStart"
-            android:textColor="@color/textColor"
+            android:textColor="?attr/textColor"
             android:textSize="16sp"
             android:textStyle="bold"
             app:layout_constraintEnd_toStartOf="@+id/view3"
@@ -45,6 +45,7 @@
             android:paddingEnd="16dp"
             android:paddingBottom="20dp"
             android:textAlignment="gravity"
+            android:textColor="?attr/textColor"
             android:textSize="16sp"
             app:layout_constraintEnd_toEndOf="@+id/id"
             app:layout_constraintStart_toStartOf="@+id/id"

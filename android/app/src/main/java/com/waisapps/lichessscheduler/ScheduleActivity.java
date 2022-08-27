@@ -26,7 +26,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 
-public class ScheduleActivity extends AppCompatActivity {
+public class ScheduleActivity extends BaseActivity {
 
     public static class TournamentStartTimeComparator implements Comparator<TournamentItem> {
         @Override
@@ -61,6 +61,7 @@ public class ScheduleActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_schedule);
+        setSupportActionBar(findViewById(R.id.toolbar));
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         // Initialize current token
