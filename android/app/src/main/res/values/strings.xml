@@ -355,6 +355,7 @@
     <string-array name="previous_tournament_not_finished">
         <item>Use display name instead</item>
         <item>Remove placeholders from name</item>
+        <item>Do not schedule tournament</item>
     </string-array>
 
 </resources>

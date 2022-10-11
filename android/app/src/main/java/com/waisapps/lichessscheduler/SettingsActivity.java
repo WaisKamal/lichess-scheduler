@@ -1,24 +1,16 @@
 package com.waisapps.lichessscheduler;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.annotation.SuppressLint;
 import android.content.SharedPreferences;
-import android.content.res.Configuration;
-import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
-import android.widget.Toast;
 
-import java.util.Date;
-import java.util.TimeZone;
+public class SettingsActivity extends BaseActivity implements AdapterView.OnItemSelectedListener {
 
-public class SettingsActivity extends BaseActivity {
-
-    private Spinner themeSelect, tnrNotFinished, schedulingMode, scheduleHours, scheduleMins;
+    private Spinner themeSelect, tnrNotFinishedAction, schedulingMode, scheduleHours, scheduleMins;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,10 +21,10 @@ public class SettingsActivity extends BaseActivity {
 
         // Initialize spinners
         themeSelect = findViewById(R.id.themeSelect);
-        tnrNotFinished = findViewById(R.id.tnrNotFinished);
+        tnrNotFinishedAction = findViewById(R.id.tnrNotFinishedAction);
         schedulingMode = findViewById(R.id.schedulingMode);
-        scheduleHours = findViewById(R.id.scheduleHours);
-        scheduleMins = findViewById(R.id.scheduleMins);
+        scheduleHours = findViewById(R.id.schedulingTimeHours);
+        scheduleMins = findViewById(R.id.schedulingTimeMins);
 
         // Populate normal spinners
         populateSpinners();
@@ -92,6 +84,47 @@ public class SettingsActivity extends BaseActivity {
             @Override
             public void onNothingSelected(AdapterView<?> parent) {}
         });
+
+        tnrNotFinishedAction.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                SharedPreferences prefs = getSharedPreferences("com.waisapps.lichessscheduler.settings", MODE_PRIVATE);
+                SharedPreferences.Editor editor = prefs.edit();
+                switch(position) {
+                    case 0:
+                        editor.putString("tnrNotFinishedAction", "useDisplayName").apply();
+                        break;
+                    case 1:
+                        editor.putString("tnrNotFinishedAction", "removePlaceholders").apply();
+                        break;
+                    case 2:
+                        editor.putString("tnrNotFinishedAction", "doNotSchedule").apply();
+                        break;
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {}
+        });
+
+        schedulingMode.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                SharedPreferences prefs = getSharedPreferences("com.waisapps.lichessscheduler.settings", MODE_PRIVATE);
+                SharedPreferences.Editor editor = prefs.edit();
+                switch(position) {
+                    case 0:
+                        editor.putString("schedulingMode", "onTheSameDay").apply();
+                        break;
+                    case 1:
+                        editor.putString("schedulingMode", "oneDayInAdvance").apply();
+                        break;
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {}
+        });
     }
 
     @Override
@@ -101,8 +134,9 @@ public class SettingsActivity extends BaseActivity {
     }
 
     private void populateSpinners() {
-        int[] spinnerIds = {R.id.themeSelect, R.id.tnrNotFinished, R.id.schedulingMode};
-        int[] entriesIds = {R.array.settings_theme, R.array.previous_tournament_not_finished, R.array.schedulingMode};
+        int[] spinnerIds = {R.id.themeSelect, R.id.tnrNotFinishedAction, R.id.schedulingMode};
+        int[] entriesIds = {R.array.settings_theme, R.array.previous_tournament_not_finished,
+                R.array.settings_scheduling_mode};
         for (int i = 0; i < spinnerIds.length; i++) {
             Spinner spinner = findViewById(spinnerIds[i]);
             ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
@@ -110,5 +144,10 @@ public class SettingsActivity extends BaseActivity {
             adapter.setDropDownViewResource(R.layout.normal_spinner);
             spinner.setAdapter(adapter);
         }
+    }
+
+    @Override
+    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+
     }
 }

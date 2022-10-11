@@ -83,7 +83,7 @@
                 app:layout_constraintTop_toBottomOf="@+id/seekBar2" />
 
             <Spinner
-                android:id="@+id/scheduleHours"
+                android:id="@+id/schedulingTimeHours"
                 style="@style/TimeDropDownField"
                 app:layout_constraintStart_toStartOf="@+id/textView18"
                 app:layout_constraintTop_toBottomOf="@+id/textView18" />
@@ -97,12 +97,12 @@
                 android:text=":"
                 android:textColor="?attr/textColor"
                 android:textSize="16sp"
-                app:layout_constraintBottom_toBottomOf="@+id/scheduleHours"
-                app:layout_constraintStart_toEndOf="@+id/scheduleHours"
-                app:layout_constraintTop_toTopOf="@+id/scheduleHours" />
+                app:layout_constraintBottom_toBottomOf="@+id/schedulingTimeHours"
+                app:layout_constraintStart_toEndOf="@+id/schedulingTimeHours"
+                app:layout_constraintTop_toTopOf="@+id/schedulingTimeHours" />
 
             <Spinner
-                android:id="@+id/scheduleMins"
+                android:id="@+id/schedulingTimeMins"
                 style="@style/TimeDropDownField"
                 android:layout_marginStart="8dp"
                 app:layout_constraintBottom_toBottomOf="@+id/textView31"
@@ -114,9 +114,9 @@
                 style="@style/FieldLabel"
                 android:layout_marginTop="16dp"
                 android:text="Schedule tournaments"
-                app:layout_constraintEnd_toEndOf="@+id/tnrNotFinished"
-                app:layout_constraintStart_toStartOf="@+id/tnrNotFinished"
-                app:layout_constraintTop_toBottomOf="@+id/tnrNotFinished" />
+                app:layout_constraintEnd_toEndOf="@+id/tnrNotFinishedAction"
+                app:layout_constraintStart_toStartOf="@+id/tnrNotFinishedAction"
+                app:layout_constraintTop_toBottomOf="@+id/tnrNotFinishedAction" />
 
             <Spinner
                 android:id="@+id/schedulingMode"
@@ -126,7 +126,7 @@
                 app:layout_constraintTop_toBottomOf="@+id/textView40" />
 
             <Spinner
-                android:id="@+id/tnrNotFinished"
+                android:id="@+id/tnrNotFinishedAction"
                 style="@style/DropDownField"
                 app:layout_constraintEnd_toEndOf="@+id/textView30"
                 app:layout_constraintStart_toStartOf="@+id/textView30"
@@ -198,7 +198,7 @@
                 android:textStyle="bold"
                 app:layout_constraintEnd_toEndOf="@+id/textView19"
                 app:layout_constraintStart_toStartOf="@+id/textView19"
-                app:layout_constraintTop_toBottomOf="@+id/scheduleHours" />
+                app:layout_constraintTop_toBottomOf="@+id/schedulingTimeHours" />
 
             <androidx.cardview.widget.CardView
                 android:layout_width="0dp"
