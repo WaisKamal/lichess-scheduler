@@ -6,4 +6,4 @@ Lichess Scheduler is an android app for scheduling tournaments on [lichess.org](
 * Android 5.0 or above
 
 ## Get the app
-**Note: the app is currently under development.** You can download the beta version of the app from [here].
+**Note: the app is currently under development.** You can download the debug build of the app [here](https://github.com/WaisKamal/lichess-scheduler/raw/main/android/app/build/outputs/apk/debug/app-debug.apk).
