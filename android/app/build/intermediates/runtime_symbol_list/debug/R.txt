@@ -2111,10 +2111,10 @@ int id save_non_transition_alpha 0x7f090168
 int id save_overlay_view 0x7f090169
 int id sawtooth 0x7f09016a
 int id scale 0x7f09016b
-int id scheduleHours 0x7f09016c
-int id scheduleMins 0x7f09016d
-int id schedulingMode 0x7f09016e
-int id schedulingSwitch 0x7f09016f
+int id schedulingMode 0x7f09016c
+int id schedulingSwitch 0x7f09016d
+int id schedulingTimeHours 0x7f09016e
+int id schedulingTimeMins 0x7f09016f
 int id screen 0x7f090170
 int id scroll 0x7f090171
 int id scrollIndicatorDown 0x7f090172
@@ -2281,7 +2281,7 @@ int id tnrMaxRatingText 0x7f090212
 int id tnrMinRating 0x7f090213
 int id tnrMinRatingText 0x7f090214
 int id tnrName 0x7f090215
-int id tnrNotFinished 0x7f090216
+int id tnrNotFinishedAction 0x7f090216
 int id tnrPassword 0x7f090217
 int id tnrPasswordText 0x7f090218
 int id tnrRated 0x7f090219

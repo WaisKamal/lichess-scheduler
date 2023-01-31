@@ -2112,10 +2112,10 @@ id save_non_transition_alpha
 id save_overlay_view
 id sawtooth
 id scale
-id scheduleHours
-id scheduleMins
 id schedulingMode
 id schedulingSwitch
+id schedulingTimeHours
+id schedulingTimeMins
 id screen
 id scroll
 id scrollIndicatorDown
@@ -2282,7 +2282,7 @@ id tnrMaxRatingText
 id tnrMinRating
 id tnrMinRatingText
 id tnrName
-id tnrNotFinished
+id tnrNotFinishedAction
 id tnrPassword
 id tnrPasswordText
 id tnrRated

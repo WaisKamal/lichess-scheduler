@@ -1,7 +1,7 @@
-#Sat Aug 27 11:05:42 AST 2022
-base.1=E\:\\AndroidApps\\LichessScheduler\\android\\app\\build\\intermediates\\dex\\debug\\mergeProjectDexDebug\\classes.dex
+#Wed Feb 01 00:15:42 CAT 2023
+base.1=/home/wais/AndroidStudioProjects/lichess-scheduler/android/app/build/intermediates/dex/debug/mergeProjectDexDebug/classes.dex
 path.1=classes.dex
-base.0=E\:\\AndroidApps\\LichessScheduler\\android\\app\\build\\intermediates\\dex\\debug\\mergeExtDexDebug\\classes.dex
+base.0=/home/wais/AndroidStudioProjects/lichess-scheduler/android/app/build/intermediates/dex/debug/mergeExtDexDebug/classes.dex
 renamed.1=classes2.dex
 renamed.0=classes.dex
 path.0=classes.dex

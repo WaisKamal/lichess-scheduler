@@ -48,14 +48,16 @@ public class SchedulingWorker extends Worker {
         File dataDir = new File(context.getFilesDir(), "data");
         File[] tokens = dataDir.listFiles();
         // Exit if no tokens found
+        // NOTE: THIS PART SHOULD BE REFACTORED TO USE TournamentFileManager
         if (tokens == null) return Result.success();
         for (File tokenFolder : tokens) {
+            String token = tokenFolder.getName();
             File tnrDir = new File(tokenFolder, "tournaments");
             if (!tnrDir.exists()) return Result.success();
             File[] tnrFiles = tnrDir.listFiles();
             if (tnrFiles == null) return Result.success();
             try {
-                Scheduler scheduler = new Scheduler(context, tokenFolder.getName());
+                Scheduler scheduler = new Scheduler(context, token);
                 for (File file : tnrFiles) {
                     FileInputStream tnrFileStream = new FileInputStream(file);
                     byte[] data = new byte[(int) file.length()];
@@ -68,8 +70,7 @@ public class SchedulingWorker extends Worker {
                     // Check whether tournament was scheduled today
                     int lastScheduledDate = tnrData.getJSONObject("status").getInt("lastCreated");
                     if (isSameDay(lastScheduledDate, now)) continue;
-                    // Schedule tournament
-                    // scheduler.scheduleTournament(tnrData, queue);
+                    scheduler.fetchWinnersAndSchedule(token, tnrData, queue);
                 }
             } catch (IOException | JSONException e) {
                 e.printStackTrace();

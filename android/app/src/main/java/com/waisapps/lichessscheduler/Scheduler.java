@@ -36,6 +36,7 @@ public class Scheduler {
         this.playerNames = getPlayerNames(token);
     }
 
+    // Fetches tournament winners, then calls scheduleTournament
     public void fetchWinnersAndSchedule(String token, JSONObject tnrData, RequestQueue queue) {
         String tnrId = tnrData.optString("id", "");
         String tnrName = tnrData.optString("name", "");
@@ -169,6 +170,8 @@ public class Scheduler {
         }
     }
 
+    // Schedules tournament given the tournament's JSON file data and the list of winners
+    // from the previous tournament's podium
     private void scheduleTournament(JSONObject tnrData, ArrayList<String> winners, RequestQueue queue) throws JSONException {
         // The request URL
         String url = "";
