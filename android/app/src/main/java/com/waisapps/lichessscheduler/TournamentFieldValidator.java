@@ -31,7 +31,7 @@ public class TournamentFieldValidator {
             return false;
         }
         if (!displayName.matches("(\\w|\\s|-|,|\\(|\\)){2,30}") || displayName.toLowerCase().contains("lichess")) {
-            Toast.makeText(context, "Invalid tournament name", Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, "Invalid display name", Toast.LENGTH_SHORT).show();
             return false;
         }
         return true;

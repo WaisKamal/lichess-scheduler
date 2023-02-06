@@ -295,7 +295,7 @@ public class EditActivity extends BaseActivity implements MenuItem.OnMenuItemCli
                     teamNames.add(teamName);
 
                     ArrayAdapter<String> adapter = new ArrayAdapter<>(EditActivity.this,
-                            R.layout.support_simple_spinner_dropdown_item, teamNames);
+                            R.layout.normal_spinner, teamNames);
                     tnrTeams.setAdapter(adapter);
                     tnrTeams.setSelection(1);
                 }

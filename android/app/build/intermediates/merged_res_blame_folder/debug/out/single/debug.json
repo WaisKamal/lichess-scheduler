@@ -112,6 +112,10 @@
         "source": "/home/wais/AndroidStudioProjects/lichess-scheduler/android/app/src/main/res/layout/activity_schedule.xml"
     },
     {
+        "merged": "/home/wais/AndroidStudioProjects/lichess-scheduler/android/app/build/intermediates/res/merged/debug/drawable_ic_error.xml.flat",
+        "source": "/home/wais/AndroidStudioProjects/lichess-scheduler/android/app/src/main/res/drawable/ic_error.xml"
+    },
+    {
         "merged": "/home/wais/AndroidStudioProjects/lichess-scheduler/android/app/build/intermediates/res/merged/debug/menu_menu_edit.xml.flat",
         "source": "/home/wais/AndroidStudioProjects/lichess-scheduler/android/app/src/main/res/menu/menu_edit.xml"
     },

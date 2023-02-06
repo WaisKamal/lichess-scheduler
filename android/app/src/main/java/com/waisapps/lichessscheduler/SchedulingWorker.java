@@ -19,6 +19,7 @@ import org.json.JSONObject;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -36,6 +37,11 @@ public class SchedulingWorker extends Worker {
     @NonNull
     @Override
     public Result doWork() {
+        try {
+            logAttempt("Running worker...");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         Context context = getApplicationContext();
         // Log the time
         SharedPreferences prefs = context.getSharedPreferences("com.waisapps.lichessscheduler.userinfo",
@@ -49,15 +55,37 @@ public class SchedulingWorker extends Worker {
         File[] tokens = dataDir.listFiles();
         // Exit if no tokens found
         // NOTE: THIS PART SHOULD BE REFACTORED TO USE TournamentFileManager
-        if (tokens == null) return Result.success();
+        if (tokens == null) {
+            try {
+                logAttempt("No tokens found");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return Result.success();
+        }
         for (File tokenFolder : tokens) {
             String token = tokenFolder.getName();
             File tnrDir = new File(tokenFolder, "tournaments");
-            if (!tnrDir.exists()) return Result.success();
+            if (!tnrDir.exists()) {
+                try {
+                    logAttempt("Tournament directory not found");
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                return Result.success();
+            }
             File[] tnrFiles = tnrDir.listFiles();
-            if (tnrFiles == null) return Result.success();
+            if (tnrFiles == null) {
+                try {
+                    logAttempt("No tournaments found");
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                return Result.success();
+            }
             try {
                 Scheduler scheduler = new Scheduler(context, token);
+                logAttempt(String.format("Scheduling tournaments for user %s\n", token));
                 for (File file : tnrFiles) {
                     FileInputStream tnrFileStream = new FileInputStream(file);
                     byte[] data = new byte[(int) file.length()];
@@ -65,11 +93,24 @@ public class SchedulingWorker extends Worker {
                     tnrFileStream.close();
                     JSONObject tnrData = new JSONObject(new String(data));
                     Date now = new Date();
+                    // NOTE: the below code can be refactored to use the new method
+                    // getTournamentState() in Scheduler
+                    // Check whether scheduling is enabled for this tournament
+                    if (!tnrData.getJSONObject("status").getBoolean("schedulingEnabled")) {
+                        logAttempt("Scheduling is disabled for this tournament");
+                        continue;
+                    }
                     // Check whether tournament should be scheduled today
-                    if (!tnrData.getJSONArray("scheduleOn").getBoolean(now.getDay())) continue;
+                    if (!tnrData.getJSONArray("scheduleOn").getBoolean(now.getDay())) {
+                        logAttempt("Tournament not set to be scheduled today");
+                        continue;
+                    }
                     // Check whether tournament was scheduled today
-                    int lastScheduledDate = tnrData.getJSONObject("status").getInt("lastCreated");
-                    if (isSameDay(lastScheduledDate, now)) continue;
+                    long lastScheduledDate = tnrData.getJSONObject("status").getLong("lastCreated");
+                    if (isSameDay(lastScheduledDate, now)) {
+                        logAttempt("This tournament was already scheduled today");
+                        continue;
+                    }
                     scheduler.fetchWinnersAndSchedule(token, tnrData, queue);
                 }
             } catch (IOException | JSONException e) {
@@ -79,10 +120,18 @@ public class SchedulingWorker extends Worker {
         return Result.success();
     }
 
-    private boolean isSameDay(int timestamp, Date date) {
+    private boolean isSameDay(long timestamp, Date date) {
         Date tsDate = new Date(timestamp);
         return tsDate.getDate() == date.getDate()
                 && tsDate.getMonth() == date.getMonth()
                 && tsDate.getYear() == date.getYear();
+    }
+
+    private void logAttempt(String data) throws IOException {
+        File logFile = new File(getApplicationContext().getFilesDir(), "worker_log.txt");
+        FileOutputStream fos = new FileOutputStream(logFile, true);
+        String now = new Date().toString();
+        fos.write(String.format("%s - %s\n", now, data).getBytes(StandardCharsets.UTF_8));
+        fos.close();
     }
 }

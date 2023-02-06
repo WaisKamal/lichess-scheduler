@@ -36,6 +36,27 @@ public class Scheduler {
         this.playerNames = getPlayerNames(token);
     }
 
+    // Returns tournament state. State is one of the following:
+    //  0: tournament was last successfully scheduled and is not pending scheduling
+    //  1: tournament was last successfully scheduled but is pending scheduling
+    //  2: tournament scheduling was unsuccessful
+    public int getTournamentState(JSONObject tnrData) throws JSONException {
+        JSONObject tnrStatus = tnrData.getJSONObject("status");
+        long lastScheduledDate = tnrStatus.getLong("lastCreated");
+        Date now = new Date();
+        if (tnrStatus.getString("lastCreationResult").equals("success")) {
+            if (isSameDay(lastScheduledDate, now) ||
+                    !tnrData.getJSONArray("scheduleOn").getBoolean(now.getDay()) ||
+                    !tnrStatus.getBoolean("schedulingEnabled")) {
+                return 0;
+            } else {
+                return 1;
+            }
+        } else {
+            return 2;
+        }
+    }
+
     // Fetches tournament winners, then calls scheduleTournament
     public void fetchWinnersAndSchedule(String token, JSONObject tnrData, RequestQueue queue) {
         String tnrId = tnrData.optString("id", "");
@@ -385,7 +406,7 @@ public class Scheduler {
                         tnrStatus.put("lastError", errorToWrite);
                         tnrJSONData.put("status", tnrStatus);
                         tournamentFileManager.writeTournamentToFile(token, tnrId, tnrJSONData.toString());
-                    } catch (JSONException | IOException e) {
+                    } catch (Exception e) {
                         e.printStackTrace();
                     }
                     error.printStackTrace();
@@ -420,5 +441,12 @@ public class Scheduler {
         JSONObject tnrJSONData = new JSONObject(tnrFileText);
         tnrJSONData.getJSONObject("status").put("lastError", new JSONArray());
         tournamentFileManager.writeTournamentToFile(token, tnrId, tnrJSONData.toString());
+    }
+
+    private boolean isSameDay(long timestamp, Date date) {
+        Date tsDate = new Date(timestamp);
+        return tsDate.getDate() == date.getDate()
+                && tsDate.getMonth() == date.getMonth()
+                && tsDate.getYear() == date.getYear();
     }
 }

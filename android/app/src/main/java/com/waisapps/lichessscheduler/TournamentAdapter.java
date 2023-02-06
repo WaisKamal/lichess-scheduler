@@ -1,8 +1,10 @@
 package com.waisapps.lichessscheduler;
 
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,6 +14,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Switch;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
@@ -21,6 +24,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.android.volley.RequestQueue;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -29,7 +33,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 public class TournamentAdapter extends RecyclerView.Adapter<TournamentAdapter.ViewHolder> {
 
@@ -64,11 +70,12 @@ public class TournamentAdapter extends RecyclerView.Adapter<TournamentAdapter.Vi
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         public View overlay;
         public ConstraintLayout container, detailsContainer;
-        public TextView name, time, variant, rating, duration, teamName, startTime;
-        public ImageView teamIcon, tnrIcon;
+        public TextView name, time, variant, rating, duration, teamName, startTime, statusText,
+                statusDescription;
+        public ImageView teamIcon, tnrIcon, statusIcon;
         public ImageButton btnExpand;
         public Switch tnrSchedulingSwitch;
-        public Button btnRetry, btnRemove;
+        public Button btnAction, btnRemove;
 
         public ViewHolder(View parent) {
             super(parent);
@@ -86,14 +93,18 @@ public class TournamentAdapter extends RecyclerView.Adapter<TournamentAdapter.Vi
             tnrIcon = parent.findViewById(R.id.tnrIcon);
             btnExpand = parent.findViewById(R.id.btnExpand);
 
-            btnRetry = parent.findViewById(R.id.btnRetry);
+            btnAction = parent.findViewById(R.id.btnAction);
             btnRemove = parent.findViewById(R.id.btnRemove);
             detailsContainer = parent.findViewById(R.id.detailsContainer);
             tnrSchedulingSwitch = parent.findViewById(R.id.schedulingSwitch);
 
+            statusIcon = parent.findViewById(R.id.statusIcon);
+            statusText = parent.findViewById(R.id.statusText);
+            statusDescription = parent.findViewById(R.id.statusDescription);
+
             container.setOnClickListener(this);
             btnExpand.setOnClickListener(this);
-            btnRetry.setOnClickListener(this);
+            btnAction.setOnClickListener(this);
             btnRemove.setOnClickListener(this);
         }
 
@@ -125,16 +136,37 @@ public class TournamentAdapter extends RecyclerView.Adapter<TournamentAdapter.Vi
                     }
                     break;
 
-                case R.id.btnRetry:
-                    if (scheduler == null) {
-                        try {
+                case R.id.btnAction:
+                    try {
+                        if (scheduler == null) {
                             scheduler = new Scheduler(context, token);
-                            scheduler.fetchWinnersAndSchedule(token, tournaments.get(getAdapterPosition()).data, queue);
-                        } catch (IOException | JSONException e) {
-                            e.printStackTrace();
                         }
-                    } else {
-                        scheduler.fetchWinnersAndSchedule(token, tournaments.get(getAdapterPosition()).data, queue);
+                        JSONObject tnrData = tournaments.get(getAdapterPosition()).data;
+                        int tnrSchedulingStatus = scheduler.getTournamentState(tnrData);
+                        if (tnrSchedulingStatus == 0) {
+                            // Open tournament in browser
+                            JSONArray lastTnrIds = tnrData
+                                    .getJSONObject("status")
+                                    .getJSONArray("lastTnrId");
+                            String tournamentUrl = String.format("https://lichess.org/%s/%s",
+                                    tnrData.getString("type").equals("swiss") ? "swiss" : "tournament",
+                                    lastTnrIds.getString(lastTnrIds.length() - 1));
+                            try {
+                                Intent browserIntent = new Intent(Intent.ACTION_VIEW,
+                                        Uri.parse(tournamentUrl));
+                                context.startActivity(browserIntent);
+                            } catch (ActivityNotFoundException e) {
+                                Toast.makeText(context,
+                                        "There is no installed application that can open this URL",
+                                        Toast.LENGTH_SHORT).show();
+                            }
+                        } else {
+                            scheduler = new Scheduler(context, token);
+                            scheduler.fetchWinnersAndSchedule(token,
+                                    tournaments.get(getAdapterPosition()).data, queue);
+                        }
+                    } catch (IOException | JSONException e) {
+                        e.printStackTrace();
                     }
                     break;
 
@@ -195,16 +227,16 @@ public class TournamentAdapter extends RecyclerView.Adapter<TournamentAdapter.Vi
             int initialTime = item.data.getInt("initialTime");
             switch (initialTime) {
                 case 15:
-                    timeControlText += "\u00bc";
+                    timeControlText += "\u00bc"; // 1/4
                     break;
                 case 30:
-                    timeControlText += "\u00bd";
+                    timeControlText += "\u00bd"; // 1/2
                     break;
                 case 45:
-                    timeControlText += "\u00be";
+                    timeControlText += "\u00be"; // 3/4
                     break;
                 case 90:
-                    timeControlText += "1" + "\u00bd";
+                    timeControlText += "1" + "\u00bd"; // 1 1/2
                     break;
                 default:
                     timeControlText = String.valueOf(initialTime / 60);
@@ -253,13 +285,40 @@ public class TournamentAdapter extends RecyclerView.Adapter<TournamentAdapter.Vi
                 holder.teamName.setVisibility(View.VISIBLE);
             }
 
+            // Tournament status
+            JSONObject tnrStatus = item.data.getJSONObject("status");
+
             // Set switch state
-            if (item.data.getJSONObject("status").getBoolean("schedulingEnabled")) {
+            if (tnrStatus.getBoolean("schedulingEnabled")) {
                 holder.overlay.setVisibility(View.GONE);
                 holder.tnrSchedulingSwitch.setChecked(true);
             } else {
                 holder.overlay.setVisibility(View.VISIBLE);
                 holder.tnrSchedulingSwitch.setChecked(false);
+            }
+
+            // Tournament last creation result
+            String tnrLastCreationResult = tnrStatus.getString("lastCreationResult");
+            // Set scheduling status icon
+            int tnrSchedulingStatus = scheduler.getTournamentState(item.data);
+            if (tnrSchedulingStatus == 0) {
+                holder.statusIcon.setImageResource(R.drawable.ic_success);
+                holder.statusText.setText("Scheduled successfully");
+                holder.statusDescription.setText(String.format("Last scheduled %s",
+                        getRelativeDate(tnrStatus.getLong("lastCreated"))));
+                holder.btnAction.setText("View");
+            } else if (tnrSchedulingStatus == 1) {
+                holder.statusIcon.setImageResource(R.drawable.ic_info);
+                holder.statusText.setText("Tournament was not scheduled today");
+                holder.statusDescription.setText(String.format("Last scheduled %s",
+                        getRelativeDate(tnrStatus.getLong("lastCreated"))));
+                holder.btnAction.setText("Schedule");
+            } else if (tnrSchedulingStatus == 2) {
+                holder.statusIcon.setImageResource(R.drawable.ic_error);
+                holder.statusText.setText("Failed to schedule tournament");
+                // NOTE: Should use more user-friendly error
+                holder.statusDescription.setText(tnrStatus.getString("lastError"));
+                holder.btnAction.setText("Retry");
             }
 
             // Add change listener to the switch
@@ -289,5 +348,41 @@ public class TournamentAdapter extends RecyclerView.Adapter<TournamentAdapter.Vi
     @Override
     public int getItemCount() {
         return tournaments.size();
+    }
+
+    // Utility function to get days difference from a given date
+    String getRelativeDate(long timeStamp) {
+        Date tsDate = new Date(timeStamp);
+        long now = new Date().getTime();
+        // Length of a day in milliseconds
+        final long day = 86400000;
+        // Time left to the end of the day on which the tournament was scheduled
+        long dayLeftOver = day - timeStamp % day;
+        // Difference between current time and time the tournament was last scheduled
+        long diff = now - timeStamp;
+        // Hours and minutes formatted to two digits
+        String tsHours = String.format(Locale.ENGLISH, "%02d", tsDate.getHours());
+        String tsMinutes = String.format(Locale.ENGLISH, "%02d", tsDate.getMinutes());
+        if (diff < dayLeftOver) {
+            return String.format(Locale.ENGLISH, "today at %s:%s",
+                    tsHours,
+                    tsMinutes);
+        } else {
+            long daysDiff = (diff - dayLeftOver + day - 1) / day;
+            if (daysDiff == 1) {
+                return String.format(Locale.ENGLISH, "yesterday at %s:%s",
+                        tsHours,
+                        tsMinutes);
+            } else if (daysDiff < 7) {
+                return String.format(Locale.ENGLISH, "%d days ago", daysDiff);
+            } else {
+                String[] months = { "January", "February", "March", "April", "May", "June", "July",
+                        "August", "September", "October", "November", "December" };
+                return String.format(Locale.ENGLISH, "on %s %d, %d",
+                        months[tsDate.getMonth()],
+                        tsDate.getDate(),
+                        tsDate.getYear());
+            }
+        }
     }
 }

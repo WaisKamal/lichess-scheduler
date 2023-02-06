@@ -9,33 +9,32 @@ com/waisapps/lichessscheduler/PlayerAdapter.java
  com.waisapps.lichessscheduler.PlayerAdapter$ViewHolder
 com/waisapps/lichessscheduler/PlayerItem.java
  com.waisapps.lichessscheduler.PlayerItem
-com/waisapps/lichessscheduler/EditActivity.java
- com.waisapps.lichessscheduler.EditActivity
- com.waisapps.lichessscheduler.EditActivity$1
- com.waisapps.lichessscheduler.EditActivity$2
- com.waisapps.lichessscheduler.EditActivity$3
- com.waisapps.lichessscheduler.EditActivity$4
- com.waisapps.lichessscheduler.EditActivity$5
- com.waisapps.lichessscheduler.EditActivity$6
-com/waisapps/lichessscheduler/BuildConfig.java
- com.waisapps.lichessscheduler.BuildConfig
+com/waisapps/lichessscheduler/SchedulingWorker.java
+ com.waisapps.lichessscheduler.SchedulingWorker
+com/waisapps/lichessscheduler/LoginActivity.java
+ com.waisapps.lichessscheduler.LoginActivity
+ com.waisapps.lichessscheduler.LoginActivity$1
+ com.waisapps.lichessscheduler.LoginActivity$2
+ com.waisapps.lichessscheduler.LoginActivity$2$1
+ com.waisapps.lichessscheduler.LoginActivity$2$2
+ com.waisapps.lichessscheduler.LoginActivity$2$2$1
+ com.waisapps.lichessscheduler.LoginActivity$3
+ com.waisapps.lichessscheduler.LoginActivity$3$1
+ com.waisapps.lichessscheduler.LoginActivity$4
 com/waisapps/lichessscheduler/BaseActivity.java
  com.waisapps.lichessscheduler.BaseActivity
 com/waisapps/lichessscheduler/TournamentFieldValues.java
  com.waisapps.lichessscheduler.TournamentFieldValues
-com/waisapps/lichessscheduler/SchedulingStatus.java
- com.waisapps.lichessscheduler.SchedulingStatus
+com/waisapps/lichessscheduler/BuildConfig.java
+ com.waisapps.lichessscheduler.BuildConfig
 com/waisapps/lichessscheduler/PlayersActivity.java
  com.waisapps.lichessscheduler.PlayersActivity
  com.waisapps.lichessscheduler.PlayersActivity$1
  com.waisapps.lichessscheduler.PlayersActivity$2
  com.waisapps.lichessscheduler.PlayersActivity$3
  com.waisapps.lichessscheduler.PlayersActivity$4
-com/waisapps/lichessscheduler/ScheduleActivity.java
- com.waisapps.lichessscheduler.ScheduleActivity
- com.waisapps.lichessscheduler.ScheduleActivity$1
- com.waisapps.lichessscheduler.ScheduleActivity$2
- com.waisapps.lichessscheduler.ScheduleActivity$TournamentStartTimeComparator
+com/waisapps/lichessscheduler/SchedulingStatus.java
+ com.waisapps.lichessscheduler.SchedulingStatus
 com/waisapps/lichessscheduler/PlayerFileManager.java
  com.waisapps.lichessscheduler.PlayerFileManager
 com/waisapps/lichessscheduler/IntentConstants.java
@@ -57,16 +56,18 @@ com/waisapps/lichessscheduler/SettingsActivity.java
  com.waisapps.lichessscheduler.SettingsActivity$1
  com.waisapps.lichessscheduler.SettingsActivity$2
  com.waisapps.lichessscheduler.SettingsActivity$3
-com/waisapps/lichessscheduler/LoginActivity.java
- com.waisapps.lichessscheduler.LoginActivity
- com.waisapps.lichessscheduler.LoginActivity$1
- com.waisapps.lichessscheduler.LoginActivity$2
- com.waisapps.lichessscheduler.LoginActivity$2$1
- com.waisapps.lichessscheduler.LoginActivity$2$2
- com.waisapps.lichessscheduler.LoginActivity$2$2$1
- com.waisapps.lichessscheduler.LoginActivity$3
- com.waisapps.lichessscheduler.LoginActivity$3$1
- com.waisapps.lichessscheduler.LoginActivity$4
+com/waisapps/lichessscheduler/Scheduler.java
+ com.waisapps.lichessscheduler.Scheduler
+ com.waisapps.lichessscheduler.Scheduler$1
+ com.waisapps.lichessscheduler.Scheduler$2
+com/waisapps/lichessscheduler/EditActivity.java
+ com.waisapps.lichessscheduler.EditActivity
+ com.waisapps.lichessscheduler.EditActivity$1
+ com.waisapps.lichessscheduler.EditActivity$2
+ com.waisapps.lichessscheduler.EditActivity$3
+ com.waisapps.lichessscheduler.EditActivity$4
+ com.waisapps.lichessscheduler.EditActivity$5
+ com.waisapps.lichessscheduler.EditActivity$6
 com/waisapps/lichessscheduler/MainActivity.java
  com.waisapps.lichessscheduler.MainActivity
  com.waisapps.lichessscheduler.MainActivity$1
@@ -74,9 +75,8 @@ com/waisapps/lichessscheduler/TournamentAdapter.java
  com.waisapps.lichessscheduler.TournamentAdapter
  com.waisapps.lichessscheduler.TournamentAdapter$1
  com.waisapps.lichessscheduler.TournamentAdapter$ViewHolder
-com/waisapps/lichessscheduler/Scheduler.java
- com.waisapps.lichessscheduler.Scheduler
- com.waisapps.lichessscheduler.Scheduler$1
- com.waisapps.lichessscheduler.Scheduler$2
-com/waisapps/lichessscheduler/SchedulingWorker.java
- com.waisapps.lichessscheduler.SchedulingWorker
+com/waisapps/lichessscheduler/ScheduleActivity.java
+ com.waisapps.lichessscheduler.ScheduleActivity
+ com.waisapps.lichessscheduler.ScheduleActivity$1
+ com.waisapps.lichessscheduler.ScheduleActivity$2
+ com.waisapps.lichessscheduler.ScheduleActivity$TournamentStartTimeComparator

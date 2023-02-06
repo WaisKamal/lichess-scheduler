@@ -684,6 +684,7 @@
         android:layout_gravity="center_horizontal"
         android:layout_marginTop="90dp"
         android:visibility="gone"
+        app:cardBackgroundColor="?attr/objectBackgroundColor"
         app:cardCornerRadius="24dp"
         tools:visibility="visible">
 
