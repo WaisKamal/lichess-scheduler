@@ -24,6 +24,10 @@
         "source": "/home/wais/AndroidStudioProjects/lichess-scheduler/android/app/src/main/res/drawable/ic_board.xml"
     },
     {
+        "merged": "/home/wais/AndroidStudioProjects/lichess-scheduler/android/app/build/intermediates/res/merged/debug/layout_tournament_prompt_dialog.xml.flat",
+        "source": "/home/wais/AndroidStudioProjects/lichess-scheduler/android/app/src/main/res/layout/tournament_prompt_dialog.xml"
+    },
+    {
         "merged": "/home/wais/AndroidStudioProjects/lichess-scheduler/android/app/build/intermediates/res/merged/debug/drawable_ic_add_white.xml.flat",
         "source": "/home/wais/AndroidStudioProjects/lichess-scheduler/android/app/src/main/res/drawable/ic_add_white.xml"
     },
@@ -46,6 +50,10 @@
     {
         "merged": "/home/wais/AndroidStudioProjects/lichess-scheduler/android/app/build/intermediates/res/merged/debug/layout_activity_edit.xml.flat",
         "source": "/home/wais/AndroidStudioProjects/lichess-scheduler/android/app/src/main/res/layout/activity_edit.xml"
+    },
+    {
+        "merged": "/home/wais/AndroidStudioProjects/lichess-scheduler/android/app/build/intermediates/res/merged/debug/drawable_ic_new.xml.flat",
+        "source": "/home/wais/AndroidStudioProjects/lichess-scheduler/android/app/src/main/res/drawable/ic_new.xml"
     },
     {
         "merged": "/home/wais/AndroidStudioProjects/lichess-scheduler/android/app/build/intermediates/res/merged/debug/mipmap-xxhdpi_ic_launcher_background.png.flat",
@@ -210,6 +218,10 @@
     {
         "merged": "/home/wais/AndroidStudioProjects/lichess-scheduler/android/app/build/intermediates/res/merged/debug/layout_centered_spinner.xml.flat",
         "source": "/home/wais/AndroidStudioProjects/lichess-scheduler/android/app/src/main/res/layout/centered_spinner.xml"
+    },
+    {
+        "merged": "/home/wais/AndroidStudioProjects/lichess-scheduler/android/app/build/intermediates/res/merged/debug/layout_activity_time_inaccurate.xml.flat",
+        "source": "/home/wais/AndroidStudioProjects/lichess-scheduler/android/app/src/main/res/layout/activity_time_inaccurate.xml"
     },
     {
         "merged": "/home/wais/AndroidStudioProjects/lichess-scheduler/android/app/build/intermediates/res/merged/debug/drawable_ic_chat.xml.flat",

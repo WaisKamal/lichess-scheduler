@@ -12,10 +12,16 @@
         android:supportsRtl="true"
         android:theme="@style/Theme_LichessScheduler">
         <activity
+            android:name=".TimeInaccurateActivity"
+            android:exported="false">
+            <meta-data
+                android:name="android.app.lib_name"
+                android:value="" />
+        </activity>
+        <activity
             android:name=".SettingsActivity"
             android:label="Settings" />
-        <activity
-            android:name=".SplashActivity">
+        <activity android:name=".SplashActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -25,16 +31,14 @@
         <activity
             android:name=".PlayersActivity"
             android:label="Players" />
-        <activity
-            android:name=".LoginActivity" />
+        <activity android:name=".LoginActivity" />
         <activity
             android:name=".ScheduleActivity"
             android:label="Schedule" />
         <activity
             android:name=".EditActivity"
             android:label="New Tournament" />
-        <activity
-            android:name=".MainActivity" />
+        <activity android:name=".MainActivity" />
         <activity
             android:name=".NotifyActivity"
             android:label="Create Notifications" />

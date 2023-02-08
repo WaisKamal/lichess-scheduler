@@ -18,6 +18,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -40,6 +41,7 @@ public class Scheduler {
     //  0: tournament was last successfully scheduled and is not pending scheduling
     //  1: tournament was last successfully scheduled but is pending scheduling
     //  2: tournament scheduling was unsuccessful
+    //  3: tournament was never scheduled before
     public int getTournamentState(JSONObject tnrData) throws JSONException {
         JSONObject tnrStatus = tnrData.getJSONObject("status");
         long lastScheduledDate = tnrStatus.getLong("lastCreated");
@@ -52,8 +54,10 @@ public class Scheduler {
             } else {
                 return 1;
             }
-        } else {
+        } else if (tnrStatus.getString("lastCreationResult").equals("error")) {
             return 2;
+        } else {
+            return 3;
         }
     }
 

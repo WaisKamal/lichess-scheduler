@@ -25,6 +25,13 @@
         android:testOnly="true"
         android:theme="@style/Theme_LichessScheduler" >
         <activity
+            android:name="com.waisapps.lichessscheduler.TimeInaccurateActivity"
+            android:exported="false" >
+            <meta-data
+                android:name="android.app.lib_name"
+                android:value="" />
+        </activity>
+        <activity
             android:name="com.waisapps.lichessscheduler.SettingsActivity"
             android:label="Settings" />
         <activity android:name="com.waisapps.lichessscheduler.SplashActivity" >

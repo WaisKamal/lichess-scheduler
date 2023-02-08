@@ -4,6 +4,8 @@ import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -37,13 +39,15 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-public class TournamentAdapter extends RecyclerView.Adapter<TournamentAdapter.ViewHolder> {
+public class TournamentAdapter extends RecyclerView.Adapter<TournamentAdapter.ViewHolder>
+        implements TournamentPromptDialog.OnButtonClick {
 
     // Intent constants
     private static final String FROM_ACTIVITY = "com.waisapps.lichessscheduler.fromActiviy";
     private static final String ID = "com.waisapps.lichessscheduler.id";
     private static final String TEAM = "com.waisapps.lichessscheduler.team";
 
+    private TournamentPromptDialog dialog;
     private List<TournamentItem> tournaments;
     private Context context;
     private String token;
@@ -171,32 +175,15 @@ public class TournamentAdapter extends RecyclerView.Adapter<TournamentAdapter.Vi
                     break;
 
                 case R.id.btnRemove:
-                    DialogInterface.OnClickListener dialogClickListener = (dialog, which) -> {
-                        if (which == DialogInterface.BUTTON_POSITIVE) {
-                            try {
-                                int index = getAdapterPosition();
-                                String tnrId = tournaments.get(index).data.getString("id");
-                                File tnrFile = new File(context.getFilesDir() + "/data/"
-                                        + token + "/tournaments/" + tnrId);
-                                if (!tnrFile.delete()) {
-                                    return;
-                                }
-                                tournaments.remove(getAdapterPosition());
-                                notifyItemRemoved(index);
-                                notifyItemRangeChanged(index, tournaments.size());
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                            }
-                        }
-                    };
-
-                    AlertDialog.Builder builder = new AlertDialog.Builder(context);
-                    builder.setTitle("Remove tournament?")
-                            .setMessage("Are you sure you would like to remove this tournament from the schedule?")
-                            .setPositiveButton("Remove", dialogClickListener)
-                            .setNegativeButton("Cancel", dialogClickListener)
-                            .show();
-
+                    dialog = new TournamentPromptDialog(context, getAdapterPosition());
+                    dialog.setOnClickListener(TournamentAdapter.this);
+                    dialog.show();
+                    // Set dialog background to transparent
+                    dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+                    // Set dialog dimensions
+                    int width = context.getResources().getDisplayMetrics().widthPixels;
+                    dialog.getWindow().setLayout((6 * width) / 7,
+                            ConstraintLayout.LayoutParams.WRAP_CONTENT);
             }
         }
     }
@@ -316,9 +303,14 @@ public class TournamentAdapter extends RecyclerView.Adapter<TournamentAdapter.Vi
             } else if (tnrSchedulingStatus == 2) {
                 holder.statusIcon.setImageResource(R.drawable.ic_error);
                 holder.statusText.setText("Failed to schedule tournament");
-                // NOTE: Should use more user-friendly error
-                holder.statusDescription.setText(tnrStatus.getString("lastError"));
+                // NOTE: This currently only shows the first error
+                holder.statusDescription.setText(tnrStatus.getJSONArray("lastError").getString(0));
                 holder.btnAction.setText("Retry");
+            } else if (tnrSchedulingStatus == 3) {
+                holder.statusIcon.setImageResource(R.drawable.ic_new);
+                holder.statusText.setText("Tournament was never scheduled before");
+                holder.statusDescription.setText("Tap \"SCHEDULE\" to schedule tournament");
+                holder.btnAction.setText("Schedule");
             }
 
             // Add change listener to the switch
@@ -384,5 +376,28 @@ public class TournamentAdapter extends RecyclerView.Adapter<TournamentAdapter.Vi
                         tsDate.getYear());
             }
         }
+    }
+
+    @Override
+    public void onRemoveButtonClick(int position) {
+        try {
+            String tnrId = tournaments.get(position).data.getString("id");
+            File tnrFile = new File(context.getFilesDir() + "/data/"
+                    + token + "/tournaments/" + tnrId);
+            if (!tnrFile.delete()) {
+                return;
+            }
+            tournaments.remove(position);
+            notifyItemRemoved(position);
+            notifyItemRangeChanged(position, tournaments.size());
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        dialog.dismiss();
+    }
+
+    @Override
+    public void onCancelButtonClick() {
+        dialog.dismiss();
     }
 }

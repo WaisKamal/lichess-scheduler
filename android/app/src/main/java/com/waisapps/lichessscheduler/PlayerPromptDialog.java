@@ -30,7 +30,7 @@ public class PlayerPromptDialog extends Dialog implements View.OnClickListener {
         return initialName;
     }
 
-    private PlayerPromptDialog.OnButtonClick onButtonClick;
+    private OnButtonClick onButtonClick;
 
     public PlayerPromptDialog(Context context, int position, String initialId, String initialName) {
         super(context);
@@ -65,7 +65,7 @@ public class PlayerPromptDialog extends Dialog implements View.OnClickListener {
         plrName.setText(name, EditText.BufferType.EDITABLE);
     }
 
-    public void setOnClickListener(PlayerPromptDialog.OnButtonClick onButtonClick) {
+    public void setOnClickListener(OnButtonClick onButtonClick) {
         this.onButtonClick = onButtonClick;
     }
 

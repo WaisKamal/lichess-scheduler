@@ -1702,6 +1702,7 @@ drawable ic_mtrl_checked_circle
 drawable ic_mtrl_chip_checked_black
 drawable ic_mtrl_chip_checked_circle
 drawable ic_mtrl_chip_close_circle
+drawable ic_new
 drawable ic_player_add
 drawable ic_players
 drawable ic_remove
@@ -2210,8 +2211,12 @@ id textView19
 id textView2
 id textView20
 id textView21
+id textView22
 id textView23
 id textView24
+id textView25
+id textView26
+id textView27
 id textView3
 id textView30
 id textView31
@@ -2391,6 +2396,7 @@ layout activity_players
 layout activity_schedule
 layout activity_settings
 layout activity_splash
+layout activity_time_inaccurate
 layout centered_spinner
 layout custom_dialog
 layout design_bottom_navigation_item
@@ -2478,6 +2484,7 @@ layout text_view_with_line_height_from_style
 layout text_view_with_theme_line_height
 layout text_view_without_line_height
 layout tnr_item
+layout tournament_prompt_dialog
 menu menu_edit
 menu menu_players
 mipmap ic_launcher
